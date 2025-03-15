@@ -1,0 +1,3178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Level</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+:root {
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 80px;
+            --sidebar-bg: #ffffff;
+            --sidebar-border: #e0e0e0;
+            --menu-text: #2d3436;
+            --menu-active-bg: #f8f9fa;
+        }
+
+        /* Main Layout Structure */
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow-x: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--sidebar-border);
+            text-align: center;
+        }
+
+        .sidebar-content {
+            padding: 1rem 0;
+        }
+
+        /* Menu Items */
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu-item {
+            margin: 2px 0;
+        }
+
+        .sidebar-menu-button {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--menu-text);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar-menu-button:hover {
+            background: var(--menu-active-bg);
+        }
+
+        .sidebar-menu-button.active {
+            background: var(--menu-active-bg);
+            font-weight: 600;
+        }
+
+        .sidebar-menu-button i {
+            width: 24px;
+            margin-right: 1rem;
+            text-align: center;
+            transition: margin 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-menu-button span {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-menu-button i {
+            margin-right: 0;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+            width: calc(100% - var(--sidebar-collapsed-width));
+        }
+
+        /* Existing Styles (Keep all your original styles below) */
+        .container {
+            max-width: 100vw;
+        }
+
+        .workflow-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        .workflow-card:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-custom {
+            width: 70px;
+        }
+
+        /* ... (Keep all your original styles here) ... */
+        /* IMPORTANT: Paste all your original CSS styles below this line */
+
+        /* Sticky Level Navigation */
+        #level-nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1000;
+            padding: 10px 0;
+        }
+
+        /* Active Level Styling */
+        .level-btn {
+            transition: 0.3s;
+        }
+
+        .level-btn.active {
+            background-color: black !important;
+            color: white !important;
+        }
+
+        /* ... Continue with all your original CSS ... */
+
+        .container {
+            max-width: 100vw;
+        }
+
+        .workflow-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        .workflow-card:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-custom {
+            width: 70px;
+        }
+
+        .stage-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dialogue-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-group button {
+            width: 70px;
+        }
+
+        /* Sticky Level Navigation */
+        #level-nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1000;
+            padding: 10px 0;
+        }
+
+        /* Active Level Styling */
+        .level-btn {
+            transition: 0.3s;
+        }
+
+        .level-btn.active {
+            background-color: black !important;
+            color: white !important;
+        }
+
+
+        /* Make the level name clearly editable */
+        .editable-level-name {
+            display: inline-block;
+            padding: 2px 5px;
+            border-bottom: 1px dashed transparent;
+            transition: all 0.3s ease;
+            cursor: text;
+        }
+
+        .editable-level-name:hover {
+            border-bottom: 1px dashed #007bff;
+        }
+
+        .editable-level-name:focus {
+            outline: none;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+        }
+
+        /* Improve Empty Stage Section */
+        .empty-stage {
+            cursor: pointer;
+        }
+
+        .empty-stage:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        /* General Card Styling */
+        .stage-card-col {
+            /* display: flex; */
+            justify-content: center;
+        }
+
+        .stage-card {
+            background: linear-gradient(135deg, #f0f2f5, #ffffff);
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            font-family: "Poppins", sans-serif;
+        }
+
+        .stage-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Stage Title */
+        .stage-card p.fw-bold {
+            font-size: 16px;
+            font-weight: 600;
+            color: #007bff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        /* Dialogue Text */
+        .stage-card p.text-muted {
+            font-size: 0.95rem;
+            color: #444;
+            margin-bottom: 12px;
+        }
+
+        /* Details Styling */
+        .stage-card p {
+            font-size: 0.88rem;
+            margin-bottom: 6px;
+            color: #555;
+        }
+
+        /* Improved Badge Styling */
+        .badge.bg-danger {
+            background: #ff4d4d;
+            color: white;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0px 2px 8px rgba(255, 77, 77, 0.5);
+        }
+
+        /* Action Icons */
+        .action-icons i {
+            font-size: 1rem;
+            padding: 6px;
+            border-radius: 50%;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .action-icons i:hover {
+            transform: scale(1.2);
+        }
+
+        /* Edit Icon */
+        .action-icons .fa-edit {
+            color: #007bff;
+            background: rgba(0, 123, 255, 0.1);
+            box-shadow: 0px 2px 5px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Copy Icon */
+        .action-icons .fa-copy {
+            color: #ffae00;
+            background: rgba(255, 174, 0, 0.1);
+            box-shadow: 0px 2px 5px rgba(255, 174, 0, 0.3);
+        }
+
+        /* Delete Icon */
+        .action-icons .fa-trash-alt {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            box-shadow: 0px 2px 5px rgba(220, 53, 69, 0.3);
+        }
+
+        /* Card Animation */
+        .stage-card:hover .action-icons i {
+            animation: glow 0.8s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+            }
+
+            to {
+                box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        /* Apply a global font */
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Customize modal header */
+        .modal-header {
+            /* background-color: #007bff;
+            color: white; */
+            font-size: 10px 12px;
+
+            border-radius: 5px 5px 0 0;
+        }
+
+        /* Improve input fields */
+        .form-control,
+        .form-select {
+            border-radius: 4px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        }
+
+        /* Style the toggle switch */
+        .form-switch .form-check-input {
+            width: 2.5rem;
+            height: 1.5rem;
+        }
+
+        /* Customize buttons */
+        .btn-primary {
+            background-color: #007bff;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .wrapper {
+        display: flex;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: var(--sidebar-width);
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 999;
+        background: var(--sidebar-background);
+        color: var(--sidebar-foreground);
+        display: flex;
+        flex-direction: column;
+        transition: width 0.2s ease-in-out;
+        border-right: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar.collapsed {
+        width: var(--sidebar-width-icon);
+    }
+
+    .sidebar-header {
+        border-bottom: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+
+    .sidebar-footer {
+        padding: 0.5rem;
+        border-top: 1px solid var(--sidebar-border);
+    }
+
+
+    /* General Styles */
+.bg-light {
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input fields and select dropdowns */
+.form-control-sm {
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* File upload section */
+#csvUpload {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+/* Buttons */
+.btn-sm {
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* Reduce margin for cleaner layout */
+.mb-2 {
+    margin-bottom: 10px !important;
+}
+
+/* CSV Columns Display */
+#csvColumns {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+/* Grid alignment for smaller input fields */
+.row .col-md-3 {
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+/* Improve the look of options container */
+.options-container {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #ffffff;
+    margin-top: 10px;
+}
+
+/* Adjusting input width for better spacing */
+.small-input {
+    width: 100%;
+}
+
+/* Hide the disabled voicebot name input */
+#voicebotName {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+
+    .sidebar.collapsed {
+        margin-left: 0;
+    }
+
+    .sidebar.collapsed ~ .main-content {
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+    }
+}
+
+/* Collapsed State Adjustments */
+.sidebar.collapsed .sidebar-header {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-group-label {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    transition: all 0.2s ease;
+}
+
+.sidebar.collapsed .user-info,
+.sidebar.collapsed .dropdown-toggle i {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    padding: 0;
+    border-top: 0;
+}
+
+
+/* Add these styles to your existing CSS */
+
+/* Right Sidebar Styles */
+.right-sidebar {
+    width: 300px;
+    height: 100vh;
+    position: fixed;
+    right: -300px;
+    top: 0;
+    background: #ffffff;
+    border-left: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+    z-index: 999;
+    padding: 20px;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+}
+
+.right-sidebar.active {
+    right: 0;
+}
+
+/* Main Content Adjustment */
+.main-content {
+    margin-right: 0;
+    transition: all 0.3s ease;
+}
+
+.right-sidebar.active ~ .main-content {
+    margin-right: 300px;
+}
+
+/* Call Controls Styling */
+.call-controls {
+    margin-top: 20px;
+}
+
+.call-controls input,
+.call-controls select {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#startCallButton {
+    background: #4CAF50;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#startCallButton:hover {
+    background: #45a049;
+}
+
+/* Toggle Button */
+.sidebar-toggle {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Test Call Section */
+#testCallSection {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* Form Elements */
+.form-control {
+    border-radius: 4px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76,175,80,0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .right-sidebar {
+        width: 260px;
+        right: -260px;
+    }
+    
+    .right-sidebar.active ~ .main-content {
+        margin-right: 260px;
+    }
+}
+
+
+    /* .bg-light {
+    padding: 10px;
+}
+
+.form-inline {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+}
+
+.form-label {
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.form-control, .btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 2px 5px;
+}
+
+.small-input {
+    width: 70px;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+}
+
+.btn i {
+    font-size: 14px;
+}
+
+select.small-input {
+    width: 80px;
+} */
+
+
+
+    </style>
+    <style>
+        /* Add custom styles for settings modal */
+        #settingsModal .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        #settingsModal .modal-body {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+        }
+        
+        #settingsIcon {
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        #settingsIcon:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        #settingsModal .form-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+        
+        #settingsModal .form-control-sm {
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+        
+        .options-container {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.content-header .d-flex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.workflow-name {
+    flex-grow: 1;
+    margin: 0 10px;
+}
+
+.workflow-name .form-control {
+    width: 100%;
+    max-width: 300px;
+}
+
+#settingsIcon, #rightSidebarToggle {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+}
+
+#settingsIcon:hover, #rightSidebarToggle:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+}
+
+
+
+.multiselect-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-button {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 14px;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+            min-height: 36px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .dropdown-button:hover {
+            border-color: #cbd5e0;
+        }
+
+        .dropdown-button.active {
+            border-color: #3182ce;
+            box-shadow: 0 0 0 1px rgba(49, 130, 206, 0.2);
+        }
+
+        .selected-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-width: 90%;
+            overflow: hidden;
+        }
+
+        .placeholder {
+            color: #a0aec0;
+            cursor: default !important;
+            background-color: transparent;
+        }
+
+        .selected-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: #edf2f7;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-right: 4px;
+            margin-bottom: 2px;
+        }
+
+        .badge-remove {
+            margin-left: 4px;
+            cursor: pointer;
+            color: #718096;
+            font-size: 10px;
+        }
+
+        .badge-remove:hover {
+            color: #4a5568;
+        }
+
+        .dropdown-icon {
+            color: #a0aec0;
+            font-size: 12px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0px;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .search-icon {
+            color: #a0aec0;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        .dropdown-content {
+            max-height: 172px;
+            overflow-y: auto;
+        }
+
+        .select-all-container {
+            padding: 2px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .select-all-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .select-all-option:hover {
+            background-color: #f7fafc;
+        }
+
+        .select-all-text {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .options-container {
+            padding: 8px 0;
+            padding: 0;
+        }
+
+        .option-item {
+            padding: 2px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .option-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .option-item label:hover {
+            background-color: #f7fafc;
+        }
+
+        .option-text {
+            font-size: 14px;
+        }
+
+        .option-checkbox,
+        .select-all-checkbox {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkbox-custom {
+            position: relative;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #fff;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .option-checkbox:checked~.checkbox-custom:after,
+        .select-all-checkbox:checked~.checkbox-custom:after {
+            content: '';
+            position: absolute;
+            display: block;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .option-checkbox:checked~.checkbox-custom,
+        .select-all-checkbox:checked~.checkbox-custom {
+            background-color: #3182ce;
+            border-color: #3182ce;
+        }
+
+        .option-checkbox:focus~.checkbox-custom,
+        .select-all-checkbox:focus~.checkbox-custom {
+            box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+        }
+
+        .clear-all-container {
+            padding: 8px 12px;
+            border-top: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .clear-all-container.show {
+            display: block;
+        }
+
+        .clear-all-button {
+            width: 100%;
+            background-color: transparent;
+            border: none;
+            padding: 6px;
+            font-size: 12px;
+            color: #718096;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .clear-all-button:hover {
+            background-color: #f7fafc;
+            color: #4a5568;
+        }
+
+        .no-results {
+            padding: 12px;
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        /* For dark mode support */
+        .dark {
+            background-color: #1a202c;
+        }
+
+        .dark .header h1 {
+            color: #f7fafc;
+        }
+
+        .dark .header p {
+            color: #a0aec0;
+        }
+
+        .dark .dropdown-button {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+
+        .dark .dropdown-button:hover {
+            border-color: #718096;
+        }
+
+        .dark .dropdown-button.active {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 1px rgba(66, 153, 225, 0.2);
+        }
+
+        .dark .placeholder {
+            color: #718096;
+        }
+
+        .dark .selected-badge {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .dark .badge-remove {
+            color: #a0aec0;
+        }
+
+        .dark .badge-remove:hover {
+            color: #e2e8f0;
+        }
+
+        .dark .dropdown-menu {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark .search-container,
+        .dark .select-all-container,
+        .dark .clear-all-container {
+            border-color: #4a5568;
+        }
+
+        .dark .search-input {
+            background-color: transparent;
+            color: #e2e8f0;
+        }
+
+        .dark .select-all-option:hover,
+        .dark .option-item label:hover,
+        .dark .clear-all-button:hover {
+            background-color: #3a4a5e;
+        }
+
+        .dark .select-all-text,
+        .dark .option-text {
+            color: #e2e8f0;
+        }
+
+        .dark .checkbox-custom {
+            background-color: #2d3748;
+            border-color: #718096;
+        }
+
+        .dark .clear-all-button {
+            color: #a0aec0;
+        }
+
+        .dark .clear-all-button:hover {
+            color: #e2e8f0;
+        }
+
+        .dark .no-results {
+            color: #a0aec0;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 100%;
+            }
+
+            .dropdown-content {
+                max-height: 172px;
+            }
+        }
+        </style>
+        
+
+    
+</head>
+
+<body class="bg-light">
+    <div class="wrapper">
+
+               <!-- Sidebar -->
+               <nav id="sidebar" class="sidebar">
+                <!-- Sidebar Header -->
+                <div class="sidebar-header">
+                    <div class="dropdown">
+                        <button class="btn user-btn dropdown-toggle" type="button" id="userDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="avatar">
+                                <img src="https://ui-avatars.com/api/?name=S+N&background=random" alt="User">
+                            </div>
+                            <div class="user-info">
+                                <!-- <span class="user-name">{{ name }}</span> -->
+                                <span class="user-email">{{ user_id }}</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down ms-auto"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <div class="dropdown-item-text">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar">
+                                            <img src="https://ui-avatars.com/api/?name=S+N&background=random"
+                                                alt="User">
+                                        </div>
+                                        <div class="user-info">
+                                            <span class="user-name">shadcn</span>
+                                            <span class="user-email">m@example.com</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-sparkles me-2"></i>Upgrade
+                                    to Pro</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                             <li><a class="dropdown-item" href="#"><i
+                                        class="fa-solid fa-badge-check me-2"></i>Account</a></li>
+                            <li><a class="dropdown-item" href="#"><i
+                                        class="fa-solid fa-credit-card me-2"></i>Billing</a></li> 
+                            <li><a class="dropdown-item" href="#"><i
+                                        class="fa-solid fa-bell me-2"></i>Notifications</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item logout-btn" href="javascript:void(0)" title="Logout" 
+                                   style="cursor: pointer;">
+                                  <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                                </a>
+                              </li>
+                        </ul>
+                    </div>
+                </div>
+    
+                <!-- Sidebar Content -->
+                <div class="sidebar-content">
+    
+                    <!-- Platform Section -->
+                    <div class="sidebar-group">
+                        <div class="sidebar-group-label">Modules</div>
+                        <ul class="sidebar-menu">
+                            <li class="sidebar-menu-item">
+                                <a href="#" class="sidebar-menu-button active" data-target="dashboard">
+                                    <i class="fa-solid fa-home"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-menu-item">
+                                <a href="#" class="sidebar-menu-button" data-target="reports">
+                                    <i class="fa-solid fa-window-maximize"></i>
+                                    <span>Reports</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-menu-item">
+                                <a href="#" class="sidebar-menu-button" data-target="workflows">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <span>Workflows</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-menu-item">
+                                <a href="#" class="sidebar-menu-button" data-target="settings">
+                                    <i class="fa-solid fa-map"></i>
+                                    <span>Settings</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+    
+                    <!-- Projects Section -->
+                    <div class="sidebar-group projects-group d-none">
+                        <div class="sidebar-group-label">Modules</div>
+                        <ul class="sidebar-menu">
+                            <li class="sidebar-menu-item">
+                                <a href="#" class="sidebar-menu-button active" data-target="dashboard">
+                                    <i class="fa-solid fa-home"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-menu-item">
+                                <a href="#" class="sidebar-menu-button" data-target="reports">
+                                    <i class="fa-solid fa-window-maximize"></i>
+                                    <span>Reports</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-menu-item">
+                                <a href="#" class="sidebar-menu-button" data-target="workflows">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <span>Workflows</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-menu-item">
+                                <a href="#" class="sidebar-menu-button" data-target="settings">
+                                    <i class="fa-solid fa-map"></i>
+                                    <span>Settings</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+    
+                <!-- Sidebar Footer -->
+                <div class="sidebar-footer">
+    
+                </div>
+    
+                <!-- Sidebar Rail -->
+                <div class="sidebar-rail d-none"></div>
+            </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container-fluid p-4">
+                <header class="content-header">
+                    <div class="d-flex align-items-center gap-2 px-4">
+                        <!-- Sidebar Toggle Button -->
+                        <button id="sidebarToggle" class="btn btn-sm p-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                                 fill="none" stroke="currentColor" stroke-width="2" 
+                                 stroke-linecap="round" stroke-linejoin="round" 
+                                 class="lucide lucide-panel-left">
+                                <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                                <path d="M9 3v18"></path>
+                            </svg>
+                        </button>
+                        <div class="vr mx-2 h-4"></div>
+                        <button onclick="window.location.href = '/dashboard'" class="btn btn-primary mb-4" style="background-color: white; color: black; margin-top: 10px;">
+                            <i class="fas fa-arrow-left me-2" style="font-size: 10px;"></i>
+                        </button>
+                
+                        <!-- Workflow Name -->
+                        <div class="workflow-name">
+                            <input type="text" id="workflowName" name="workflowName" 
+                                   class="form-control" placeholder="Enter workflow name" required>
+                        </div>
+                
+                        <!-- Settings Icon -->
+                        <button id="settingsIcon" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                            <i class="fas fa-cog fa-lg"></i>
+                        </button>
+                
+                        <!-- Call Icon -->
+                        <!-- <button class="sidebar-toggle" id="rightSidebarToggle">
+                            <i class="fas fa-phone"></i>
+                        </button> -->
+                    </div>
+                </header>
+
+                <!-- <header class="content-header">
+                    <div class="d-flex align-items-center gap-2 px-4">
+                      
+                        <button id="sidebarToggle" class="btn btn-sm p-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                                 fill="none" stroke="currentColor" stroke-width="2" 
+                                 stroke-linecap="round" stroke-linejoin="round" 
+                                 class="lucide lucide-panel-left">
+                                <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                                <path d="M9 3v18"></path>
+                            </svg>
+                        </button>
+                        <div class="vr mx-2 h-4"></div>
+                       
+                    </div>
+                </header> -->
+                <!-- Your Existing Content -->
+              
+               
+                <div class="user-info">
+                    <!-- <span class="user-name">{{ name }}</span> -->
+                    <!-- <span class="user-email">{{ user_id }}</span> -->
+                </div>
+
+                <div id="botDetailsSection" class="mb-4" style="margin-top: -100px; margin-left:300px; width: 40%;" hidden disabled>
+
+                    
+                    <span class="user-email" hidden disabled>{{ user_id }}</span>
+                    
+                    <form id="workflowForm" class="bg-white p-4 rounded shadow-sm">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                
+                                <input type="text" id="voicebotName" name="voicebotName" class="form-control" hidden disabled>
+                            </div>
+                            <div class="col-md-4">
+                                
+                                <input type="text" id="voicebotUuid" name="voicebotUuid" class="form-control" hidden disabled>
+                            </div>
+                            <div class="col-md-4">
+                                
+                                <input type="text" id="uuid" name="uuid" class="form-control" hidden disabled>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="workflowName" class="form-label" hidden disabled>Workflow Name:</label>
+                                <input type="text" id="workflowName" name="workflowName" 
+                                    class="form-control" placeholder="Enter workflow name" required>
+                            </div>
+                            
+                        </div>
+                    </form>
+                </div>
+                 
+                <!-- <button id="settingsIcon" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <i class="fas fa-cog fa-lg"></i>
+                </button>
+           -->
+            
+            <!-- Settings Modal -->
+            <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title" id="settingsModalLabel">Workflow Settings</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Moved Settings Content -->
+
+
+                            <div class="bg-light p-3">
+                                <div class="mb-3">
+                                    <label for="csvApiUrl" class="form-label">User Data API URL:</label>
+                                    <div class="input-group">
+                                        <input type="url" id="csvApiUrl" class="form-control form-control-sm" 
+                                               placeholder="Enter CSV data API URL">
+                                        <button class="btn btn-primary btn-sm" id="submitApiBtn">Submit</button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="csvUpload" class="form-label">Upload CSV File:</label>
+                                    <input type="file" id="csvUpload" class="form-control form-control-sm" accept=".csv">
+                                    <button class="btn btn-success btn-sm mt-2" id="uploadCsvBtn">Upload</button>
+                                    <p id="uploadedFileName" class="mt-2 small text-muted"></p>
+                                </div>
+
+                                <button class="btn btn-primary btn-sm mt-2" id="createVariablesBtn" style="display: none;">Create Variables</button>
+            
+                                <div id="csvColumns" class="mb-3" style="display: none;">
+                                    <h6>CSV Columns:</h6>
+                                    <ul id="columnsList" class="list-unstyled"></ul>
+                                </div>
+
+                                <button class="btn btn-success btn-sm mt-2" id="saveVariableMappingBtn" style="display: none;">Save Variable Mapping</button>
+
+            
+                                <div class="options-container">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="languageSelect" class="form-label">Language</label>
+                                            <select id="languageSelect" class="form-select form-select-sm">
+                                                <option value="english">English</option>
+                                                <option value="hindi">Hindi</option>
+                                                <option value="tamil">Tamil</option>
+                                                <option value="kannada">Kannada</option>
+                                            </select>
+                                        </div>
+            
+                                        <div class="col-md-6">
+                                            <label for="voicesSelect" class="form-label">Voices</label>
+                                            <select id="voicesSelect" class="form-select form-select-sm">
+                                                <option value="en-IN-AnanyaNeural">Ananya (Default)</option>
+                                                <option value="en-IN-AaravNeural">Aarav (Male)</option>
+                                                <option value="en-IN-AashiNeural">Aashi (Female)</option>
+                                                <option value="en-IN-AartiNeural">Aarti (Female)</option>
+                                                <option value="en-IN-ArjunNeural">Arjun (Male)</option>
+                                                <option value="en-IN-KavyaNeural">Kavya (Female)</option>
+                                                <option value="en-IN-KunalNeural">Kunal (Male)</option>
+                                                <option value="en-IN-NeerjaNeural">Neerja (Female)</option>
+                                            </select>
+                                        </div>
+            
+                                        <div class="col-md-4">
+                                            <label for="callDuration" class="form-label">Call Duration (sec)</label>
+                                            <input type="number" id="callDuration" class="form-control form-control-sm" value="60">
+                                        </div>
+            
+                                        <div class="col-md-4">
+                                            <label for="interruptionToggle" class="form-label">Interruption</label>
+                                            <select id="interruptionToggle" class="form-select form-select-sm">
+                                                <option value="enable">Enable</option>
+                                                <option value="disable">Disable</option>
+                                            </select>
+                                        </div>
+            
+                                        <div class="col-md-4">
+                                            <label for="ivrDetect" class="form-label">IVR Detect</label>
+                                            <select id="ivrDetect" class="form-select form-select-sm">
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                            </select>
+                                        </div>
+            
+                                        <div class="col-12">
+                                            <label for="botMessage" class="form-label">No Response Message</label>
+                                            <input type="text" id="botMessage" class="form-control form-control-sm" 
+                                                   placeholder="Enter default message">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="exportBtn" data-bs-dismiss="modal">Save Details</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            
+               
+
+             
+
+     
+
+
+                    <div class="container py-4">
+                        <h4 class="mb-2">Chatbot Level</h4>
+
+                        <!-- Sticky Level Navigation -->
+                        <div id="level-nav" class="mb-3 d-flex justify-content-between align-items-center border-bottom pb-2">
+                            
+                            <div id="level-buttons">
+                                <!-- Levels will be dynamically added here -->
+                            </div>
+                            <button id="add-level-btn" class="btn btn-success">Add Level</button>
+                            <button id="save-all-btn" class="btn btn-primary">Save All</button>
+                        </div>
+
+                        <!-- Button to trigger modal (optional, if you need a manual trigger) -->
+                        <button type="button" class="btn btn-primary d-none" id="openStageModal" data-bs-toggle="modal"
+                            data-bs-target="#stageModal">
+                            Open Modal
+                        </button>
+
+                        <div id="flash-message"></div>
+
+                        <!-- Stage Modal -->
+                        <div class="modal fade" id="stageModal" tabindex="-1" aria-labelledby="stageModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="stageModalLabel">Create Stage</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <label for="stageName" class="col-md-4 col-form-label">Stage Name <span
+                                                            class="text-danger">*</span></label>
+                                                    <div class="col-md-8">
+                                                        <input type="text" class="form-control" id="stageName"
+                                                            placeholder="Enter stage name" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <label for="dialogue" class="col-md-4 col-form-label">Dialogue <span
+                                                            class="text-danger">*</span></label>
+                                                    <div class="col-md-8">
+                                                        <textarea class="form-control" id="dialogue" placeholder="Enter dialogue..." required></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <label for="repeatCount" class="col-md-4 col-form-label">Stage Repeat Count</label>
+                                                    <div class="col-md-8">
+                                                        <input type="number" class="form-control" id="repeatCount" value="1"
+                                                            min="1">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- <div class="col-md-6">
+                                                <div class="row">
+                                                    <label for="allowBarge" class="col-md-4 col-form-label">Allow Barge In</label>
+                                                    <div class="col-md-8">
+                                                        <select class="form-select" id="allowBarge">
+                                                            <option value="false">False</option>
+                                                            <option value="true">True</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                        </div>
+
+                                         <div class="row mb-3">
+                                            <!-- <div class="col-md-6">
+                                                <div class="row">
+                                                    <label for="intent" class="col-md-4 col-form-label">Intent (Optional)</label>
+                                                    <div class="col-md-8">
+                                                        <input type="text" class="form-control" id="intent"
+                                                            placeholder="Enter the NLG Intent">
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <label class="col-md-4 col-form-label" for="endConversation">End
+                                                        Conversation</label>
+                                                    <div class="col-md-8">
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="endConversation">
+                                                            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- <div class="row mb-3"> -->
+                                            <!-- <div class="col-md-6">
+                                                <div class="row">
+                                                    <label for="classifier" class="col-md-4 col-form-label">Classifier</label>
+                                                    <div class="col-md-8">
+                                                        <input type="text" class="form-control" id="classifier">
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <!-- <div class="col-md-6">
+                                                <div class="row">
+                                                    <label for="scoreThreshold" class="col-md-4 col-form-label">Score
+                                                        Threshold</label>
+                                                    <div class="col-md-8">
+                                                        <input type="text" class="form-control" id="scoreThreshold">
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                        <!-- </div>  -->
+
+                                        <!-- Next Stages Section -->
+                                        <!-- <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <label class="col-md-4 col-form-label">Next Stages <span
+                                                            class="text-danger">*</span></label>
+                                                    <div class="col-md-8">
+                                                        <select class="form-select" id="nextStage">
+                                                            <option value="">Select an option</option>
+                                                            <option value="yes">Yes</option>
+                                                            <option value="no">No</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> -->
+
+                                        <!-- <div id="nextStageOptions" class="row mb-3 d-none">
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <label class="col-md-4 col-form-label">Redirect to Level ID (Yes)</label>
+                                                    <div class="col-md-8">
+                                                        <select class="form-select" id="yesRedirect">
+                                                            <option value="">Select Level ID</option>
+                                                            <option value="1">Level 1</option>
+                                                            <option value="2">Level 2</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="row">
+                                                    <label class="col-md-4 col-form-label">Redirect to Level ID (No)</label>
+                                                    <div class="col-md-8">
+                                                        <select class="form-select" id="noRedirect">
+                                                            <option value="">Select Level ID</option>
+                                                            <option value="1">Level 1</option>
+                                                            <option value="2">Level 2</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> -->
+                                    </div>
+
+                                    <script>
+                                        document.getElementById('nextStage').addEventListener('change', function() {
+                                            let nextStageOptions = document.getElementById('nextStageOptions');
+                                            if (this.value === 'yes') {
+                                                nextStageOptions.classList.remove('d-none');
+                                            } else {
+                                                nextStageOptions.classList.add('d-none');
+                                            }
+                                        });
+                                    </script>
+
+                                    <div class="modal-footer py-1">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-primary" id="saveStage">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Levels Container -->
+                        <div id="levels-container">
+                            <!-- Levels will be dynamically added here -->
+                        </div>
+
+                     
+                    </div>
+                  
+            
+                </div>
+            </div>
+        </main>
+    </div>
+
+    
+<button class="sidebar-toggle" id="rightSidebarToggle">
+    <i class="fas fa-phone"></i>
+</button>
+
+
+<div class="right-sidebar" id="rightSidebar">
+    <h4>Call Controls</h4>
+    <div class="call-controls">
+        <input type="number" id="mobileNumberInput" placeholder="Enter mobile number">
+        <button id="startCallButton">
+            <i class="fas fa-phone"></i> Start Call
+        </button>
+        
+        <div id="testCallSection">
+            <h5>Test Settings</h5>
+            <select id="voiceSelect" class="form-control">
+                <option value="en-IN-AnanyaNeural">English Voice</option>
+                <option value="hi-IN-MadhurNeural">Hindi Voice</option>
+                <option value="ta-IN-PallaviNeural">Tamil Voice</option>
+            </select>
+            
+            <select id="languageSelect" class="form-control">
+                <option value="en-IN">English</option>
+                <option value="hi-IN">Hindi</option>
+                <option value="ta-IN">Tamil</option>
+            </select>
+            
+            <select id="interruptionSelect" class="form-control">
+                <option value="yes">Allow Interruption</option>
+                <option value="no">No Interruption</option>
+            </select>
+            
+            <input type="number" id="callDuration" 
+                   placeholder="Call Duration (sec)" 
+                   value="60" 
+                   class="form-control">
+            
+            <div class="form-check">
+                <input type="checkbox" id="ivrDetectCheckbox" 
+                       class="form-check-input">
+                <label class="form-check-label" for="ivrDetectCheckbox">
+                    IVR Detection
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        // Close dropdown when clicking outside
+        $(document).on("click", function (e) {
+            if (!$(e.target).closest(".multiselect-dropdown").length) {
+                $(".dropdown-menu").removeClass("show");
+                $(".dropdown-button").removeClass("active");
+            }
+        });
+
+        // Toggle dropdown open/close
+        $(document).on("click", ".dropdown-button", function (e) {
+            e.stopPropagation();
+            let dropdown = $(this).closest(".multiselect-dropdown");
+            let dropdownMenu = dropdown.find(".dropdown-menu");
+
+            $(".dropdown-menu").not(dropdownMenu).removeClass("show"); // Close other dropdowns
+            $(".dropdown-button").not(this).removeClass("active");
+
+            dropdownMenu.toggleClass("show");
+            $(this).toggleClass("active");
+        });
+
+        // Stop event propagation inside dropdown
+        $(document).on("click", ".dropdown-menu", function (e) {
+            e.stopPropagation();
+        });
+
+        // Search functionality
+        $(document).on("input", ".search-input", function () {
+            let dropdown = $(this).closest(".multiselect-dropdown");
+            let searchTerm = $(this).val().toLowerCase();
+            let hasVisibleOptions = false;
+
+            dropdown.find(".option-item").each(function () {
+                const optionText = $(this).find(".option-text").text().toLowerCase();
+                $(this).toggle(optionText.includes(searchTerm));
+                if (optionText.includes(searchTerm)) hasVisibleOptions = true;
+            });
+
+            dropdown.find(".no-results").remove();
+            if (!hasVisibleOptions) {
+                dropdown.find(".options-container").append('<div class="no-results">No results found.</div>');
+            }
+            updateSelectAllCheckbox(dropdown);
+        });
+
+        // Select all functionality
+        $(document).on("change", ".select-all-checkbox", function () {
+            let dropdown = $(this).closest(".multiselect-dropdown");
+            let isChecked = $(this).prop("checked");
+
+            dropdown.find(".option-item:visible .option-checkbox").prop("checked", isChecked).trigger("change");
+        });
+
+        // Individual checkbox selection
+        $(document).on("change", ".option-checkbox", function () {
+            let dropdown = $(this).closest(".multiselect-dropdown");
+            updateSelectAllCheckbox(dropdown);
+            updateSelectedItems(dropdown);
+        });
+
+        // Clear all selections
+        $(document).on("click", ".clear-all-button", function (e) {
+            e.stopPropagation();
+            let dropdown = $(this).closest(".multiselect-dropdown");
+
+            dropdown.find(".option-checkbox, .select-all-checkbox").prop("checked", false);
+            updateSelectedItems(dropdown);
+        });
+
+        function updateSelectAllCheckbox(dropdown) {
+            let visibleOptions = dropdown.find(".option-item:visible");
+            let checkedVisibleOptions = dropdown.find(".option-item:visible .option-checkbox:checked");
+
+            dropdown.find(".select-all-checkbox").prop("checked", visibleOptions.length > 0 && visibleOptions.length === checkedVisibleOptions.length);
+        }
+
+        function updateSelectedItems(dropdown) {
+            let selectedItemsContainer = dropdown.find(".selected-items").empty();
+            let selectedValues = dropdown.find(".option-checkbox:checked").map(function () {
+                return $(this).closest(".option-item").data("value");
+            }).get();
+
+            dropdown.find(".clear-all-container").toggleClass("show", selectedValues.length > 0);
+
+            if (selectedValues.length === 0) {
+                selectedItemsContainer.append('<span class="placeholder">Select options...</span>');
+            } else if (selectedValues.length <= 2) {
+                selectedValues.forEach(value => {
+                    const optionText = dropdown.find(`.option-item[data-value="${value}"] .option-text`).text();
+                    selectedItemsContainer.append(`
+                        <div class="selected-badge" data-value="${value}">
+                            ${optionText} 
+                            <span class="badge-remove" data-value="${value}">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        </div>
+                    `);
+                });
+
+                // Remove selected value on badge click
+                dropdown.find(".badge-remove").on("click", function (e) {
+                    e.stopPropagation();
+                    let value = $(this).data("value");
+                    removeSelectedValue(dropdown, value);
+                });
+            } else {
+                selectedItemsContainer.append(`<span>${selectedValues.length} items selected</span>`);
+            }
+        }
+
+        function removeSelectedValue(dropdown, value) {
+            dropdown.find(`.option-item[data-value="${value}"] .option-checkbox`).prop("checked", false);
+            updateSelectAllCheckbox(dropdown);
+            updateSelectedItems(dropdown);
+        }
+
+        function storeStagePrefix() {
+            $(".multiselect-dropdown").each(function () {
+                let dropdown = $(this);
+                let optionsContainer = dropdown.find(".options-container");
+                let selectedValues = dropdown.find(".option-checkbox:checked").map(function () {
+                    return $(this).closest(".option-item").data("value");
+                }).get();
+
+                optionsContainer.empty(); // Clear previous options before adding new ones
+                
+                let stageNames = $(".stage-name");
+                if (stageNames.length === 0) {
+                    console.warn("No elements with class '.stage-name' found.");
+                    return;
+                }
+
+                let optionsHtml = "";
+                let availableValues = [];
+
+                stageNames.each(function () {
+                    let prefix = $(this).text().trim().substring(0, 3).toUpperCase();
+                    if (prefix) {
+                        availableValues.push(prefix);
+                        optionsHtml += `
+                            <div class="option-item" data-value="${prefix}">
+                                <label>
+                                    <input type="checkbox" class="option-checkbox">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="option-text">${prefix}</span>
+                                </label>
+                            </div>
+                        `;
+                    }
+                });
+
+                if (!optionsHtml) {
+                    optionsHtml = '<div class="no-results">No options available.</div>';
+                }
+
+                optionsContainer.append(optionsHtml);
+
+                // Restore previously selected options
+                selectedValues.forEach(value => {
+                    if (availableValues.includes(value)) {
+                        dropdown.find(`.option-item[data-value="${value}"] .option-checkbox`).prop("checked", true);
+                    }
+                });
+
+                updateSelectedItems(dropdown);
+
+                // Remove selected values if they were deleted
+                $(".selected-badge").each(function () {
+                    let value = $(this).data("value");
+                    if (!availableValues.includes(value)) {
+                        $(this).remove();
+                    }
+                });
+            });
+        }
+
+        $(document).on("click", ".edit-stage, .copy-stage, .delete-stage, #saveStage", function () {
+            setTimeout(storeStagePrefix, 500);
+        });
+
+        $(".multiselect-dropdown").each(function () {
+            updateSelectedItems($(this));
+        });
+
+        // Initialize stage prefixes on load
+        storeStagePrefix();
+    });
+</script>
+<script>
+// Right Sidebar Toggle
+document.getElementById('rightSidebarToggle').addEventListener('click', function() {
+    console.log('clicked')
+    document.getElementById('rightSidebar').classList.toggle('active');
+});
+
+// Sidebar toggle functionality
+$(document).ready(function() {
+    $('#sidebarToggle').on('click', function() {
+        $('#sidebar').toggleClass('collapsed');
+    });
+});
+
+
+    
+
+// Retrieve the workflow data passed from the backend
+const workflowData = JSON.parse('{{ workflow_data | tojson | safe }}');
+
+
+// Add this script to handle CSV API submission
+document.getElementById('submitApiBtn').addEventListener('click', function() {
+    const apiUrl = document.getElementById('csvApiUrl').value.trim();
+    const workflowUuid = document.getElementById('uuid').value.trim();
+    const userId = "{{ user_id }}";
+
+    if (!apiUrl) {
+        alert('Please enter a valid API URL');
+        return;
+    }
+
+    if (!workflowUuid) {
+        alert('Workflow configuration missing');
+        return;
+    }
+
+    fetch('/api/submit-csv-api', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            api_url: apiUrl,
+            workflow_uuid: workflowUuid,
+            user_id: userId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // showFlashMessage('success', 'API URL submitted successfully!');
+            alert(data.message || 'API URL submitted successfully!');
+
+            document.getElementById('csvApiUrl').value = '';
+        } else {
+            // showFlashMessage('danger', data.error || data.message || 'An error occurred');
+            alert(data.error || data.message || 'An error occurred');
+
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // showFlashMessage('danger', 'Failed to submit API URL');
+        alert('Failed to submit API URL');
+    });
+});
+
+
+
+
+
+
+// Modified displayWorkflow function to integrate with your UI components
+// import workflow
+function displayWorkflow(workflowData) {
+    console.log("workflowdata:---------------",workflowData);
+    const levelsContainer = document.getElementById('levels-container');
+    const levelButtons = document.getElementById('level-buttons');
+    
+    // Clear existing content
+    levelsContainer.innerHTML = '';
+    levelButtons.innerHTML = '';
+
+    // Handle both array and object formats
+    const levels = Array.isArray(workflowData) ? workflowData : workflowData?.levels || [];
+
+    levels.forEach((level, levelIndex) => {
+        const levelId = level.id || levelIndex;
+        
+        // Create level button
+        const levelBtn = document.createElement('button');
+        levelBtn.className = `btn ${levelIndex === 0 ? 'btn-dark active' : 'btn-outline-dark'} level-btn`;
+        levelBtn.textContent = `Level ${levelId}`;
+        levelBtn.dataset.level = `level-${levelId}`;
+        levelButtons.appendChild(levelBtn);
+
+        // Create level container
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'level-section p-3 border rounded bg-white shadow-sm mb-3';
+        levelDiv.id = `level-${levelId}`;
+        levelDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-semibold">
+                    Level ${levelId}: 
+                    <span class="editable-level-name">${level.name}</span>
+                </h5>
+                <button class="btn btn-sm btn-success add-stage-btn">
+                    <i class="fas fa-plus"></i> Add Stage
+                </button>
+            </div>
+            <div class="stages-container row mt-3"></div>
+        `;
+
+        // Add stages
+        const stagesContainer = levelDiv.querySelector('.stages-container');
+        if (level.stages && level.stages.length > 0) {
+            level.stages.forEach((stage, stageIndex) => {
+                const stageHtml = `
+                    <div class="stage-card-col col-md-4">
+                        <div class="stage-card p-2 border rounded shadow-sm mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="fw-bold mb-1 text-primary">${stage.id} - ${stage.name}</p>
+                                <div class="action-icons">
+                                    ${stage.endConversation ? '<span class="badge bg-danger mx-2">End</span>' : ''}
+                                    <i class="fas fa-edit text-primary edit-stage me-1" style="cursor:pointer;"></i>
+                                    <i class="fas fa-trash-alt text-danger delete-stage me-1" style="cursor:pointer;"></i>
+                                </div>
+                            </div>
+                            <p class="text-muted">${stage.dialogue}</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Repeats:</strong> ${stage.repeatCount}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Ends:</strong> ${stage.endConversation ? 'Yes' : 'No'}</p>
+                                </div>
+                            </div>
+
+
+                             <!-- New Row for Next Stage Dropdown -->
+                            <div class="row mt-2">
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <label for="nextStageSelect" class="fw-bold">Next Stage:<p><strong>Next:</strong> ${stage.nextStage.option}</p></label>
+                                </div>
+                                <div class="col-md-8">
+                                    <select class="form-control next-stage-select py-1" id="nextStageSelect">
+                                        <option value="">Select Next Stage</option>
+                                        <!-- Options will be dynamically added here -->
+                                    </select>
+                                </div>
+                            </div>
+
+
+
+
+                           
+                        </div>
+                    </div>
+                `;
+                stagesContainer.insertAdjacentHTML('beforeend', stageHtml);
+            });
+        } else {
+            stagesContainer.innerHTML = `
+               
+            `;
+        }
+
+        levelsContainer.appendChild(levelDiv);
+    });
+
+    // Initialize level navigation
+    initLevelNavigation();
+}
+
+// Modified initialization function
+function initLevelNavigation() {
+    // Level button click handler
+    document.querySelectorAll('.level-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const targetId = this.dataset.level;
+            document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // Stage edit handler
+    document.querySelectorAll('.edit-stage').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const stageCard = this.closest('.stage-card');
+            const stageName = stageCard.querySelector('.fw-bold').textContent.split(' - ')[1];
+            const dialogue = stageCard.querySelector('.text-muted').textContent;
+            const repeatCount = stageCard.querySelector('p:contains("Repeats")')?.textContent.split(': ')[1];
+            const endConversation = stageCard.querySelector('p:contains("Ends")')?.textContent.includes('Yes');
+
+            // Populate modal fields
+            document.getElementById('stageName').value = stageName;
+            document.getElementById('dialogue').value = dialogue;
+            document.getElementById('repeatCount').value = repeatCount || 1;
+            document.getElementById('endConversation').checked = endConversation;
+
+            // Show modal
+            new bootstrap.Modal(document.getElementById('stageModal')).show();
+        });
+    });
+}
+
+
+
+
+
+// Update DOMContentLoaded handler
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const levelsJson = urlParams.get('levels');
+    
+    try {
+        const workflowData = levelsJson 
+            ? JSON.parse(decodeURIComponent(levelsJson))
+            : JSON.parse('{{ workflow_data | tojson | safe }}');
+
+        displayWorkflow(workflowData);
+
+    } catch (error) {
+        console.error("Error loading workflow:", error);
+        document.getElementById('levels-container').innerHTML = `
+            <div class="alert alert-danger">
+                Error loading workflow data: ${error.message}
+            </div>
+        `;
+    }
+
+    // Add new level handler
+    document.getElementById('add-level-btn').addEventListener('click', function() {
+        const levelId = document.querySelectorAll('.level-section').length;
+        const levelData = {
+            id: levelId,
+            name: `Level ${levelId}`,
+            stages: []
+        };
+        displayWorkflow([levelData]);
+    });
+});
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const levelsJson = urlParams.get('levels');
+    
+    try {
+        let workflowData = levelsJson 
+            ? JSON.parse(decodeURIComponent(levelsJson))
+            : JSON.parse('{{ workflow_data | tojson | safe }}');
+
+        // Initialize workflowData as an array if it's not already
+        if (!Array.isArray(workflowData)) {
+            workflowData = workflowData?.levels || [];
+        }
+
+        displayWorkflow(workflowData);
+
+    } catch (error) {
+        console.error("Error loading workflow:", error);
+        document.getElementById('levels-container').innerHTML = `
+            <div class="alert alert-danger">
+                Error loading workflow data: ${error.message}
+            </div>
+        `;
+    }
+
+    // Add new level handler
+    document.getElementById('add-level-btn').addEventListener('click', function() {
+        const levelId = document.querySelectorAll('.level-section').length;
+        const levelData = {
+            id: levelId,
+            name: `Level ${levelId}`,
+            stages: []
+        };
+
+        // Append the new level to the existing workflowData
+        workflowData.push(levelData);
+
+        // Re-render the workflow with the updated levels
+        displayWorkflow(workflowData);
+    });
+});
+
+
+function updateWorkflowData(levelId, updatedLevel) {
+    workflowData[levelId] = updatedLevel;
+    displayWorkflow(workflowData);
+}
+
+
+
+
+
+
+
+
+//working code for saving and creating workflow
+function collectWorkflowData() {
+     // Check if workflowName is empty
+   
+
+    const userId = "{{ user_id }}";  // Passed from Flask template
+    const workflowName = $('#workflowName').val().trim();  // Get and trim the workflowName input
+
+    // Check if workflowName is empty
+    if (!workflowName) {
+        alert("Please enter a workflow name!");  // Show alert if the workflow name is empty
+        return null;  // Return null to prevent further processing
+    }
+
+    const workflowData = {
+        userId: userId,  // Include userId in the data to be sent
+        workflowName: $('#workflowName').val(),
+        voicebotUuid: $('#voicebotUuid').val(),
+        workflowUuid: $('#uuid').val(),
+        levels: []
+    };
+    
+    // console.log("Workflow Data in collectWorkflowData:", workflowData);  // Check if workflowName is sent correctly
+    console.log("Workflow Name in collectWorkflowData:", workflowData.workflowName);  // Log workflow name
+
+    $('.level-section').each(function(index) {
+        const level = {
+            id: index,
+            name: $(this).find('.editable-level-name').text().trim(),
+            stages: []
+        };
+
+        $(this).find('.stage-card').each(function() {
+            const stageText = $(this).find('p.fw-bold').text().trim();
+            const stageId = stageText.split(' - ')[0];
+            const stageName = stageText.split(' - ')[1];
+            
+            const stage = {
+                id: stageId,
+                name: stageName,
+                dialogue: $(this).find('p.text-muted').text().trim(),
+                repeatCount: parseInt($(this).find('p:contains("Stage Repeats")').text().split(':')[1].trim()),
+                // allowBarge: $(this).find('p:contains("Allow Barge In")').text().split(':')[1].trim().toLowerCase() === 'true',
+                // intent: $(this).find('p:contains("Intent")').text().split(':')[1].trim(),
+                // classifier: $(this).find('p:contains("Classifier")').text().split(':')[1].trim(),
+                // scoreThreshold: parseFloat($(this).find('p:contains("Score Threshold")').text().split(':')[1].trim()),
+                endConversation: $(this).find('.badge.bg-danger').length > 0,
+                nextStage: $(this).find('.next-stage-select').val() // Capture the selected next stage
+                // nextStage: {
+                //     option: $(this).find('p:contains("Next Stage")').text().split(':')[1].trim(),
+                //     yesRedirect: $(this).find('p:contains("Yes Redirect")').text().split(':')[1].trim(),
+                //     noRedirect: $(this).find('p:contains("No Redirect")').text().split(':')[1].trim()
+                // }
+            };
+
+            level.stages.push(stage);
+        });
+
+        workflowData.levels.push(level);
+    });
+
+    return workflowData;
+}
+
+// Save button click handler
+$('#save-all-btn').click(function() {
+    const workflowData = collectWorkflowData();
+    console.log(workflowData)
+    
+    // Example API endpoint - replace with your actual endpoint
+    const apiUrl = '/api/save-workflow1';
+    
+    $.ajax({
+        url: apiUrl,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(workflowData),
+        success: function(response) {
+            showFlashMessage('success', 'Workflow saved successfully!');
+        },
+        error: function(xhr) {
+            showFlashMessage('danger', 'Error saving workflow: ' + xhr.responseText);
+        }
+    });
+});
+
+// Helper function to show flash messages
+function showFlashMessage(type, message) {
+    const alertClass = `alert-${type}`;
+    const flashHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    $('#flash-message').html(flashHtml);
+}
+
+
+    $(document).ready(function() {
+        let levelCount = 0;
+        console.log("jquery is working");
+
+        function updateLevelButtons() {
+            console.log("update level button is clicked");
+            let buttonsHtml = '';
+            for (let i = 0; i <= levelCount; i++) {
+                buttonsHtml +=
+                    `<button class="btn ${i === 0 ? 'btn-dark active' : 'btn-outline-dark'} level-btn" data-level="level-${i}">Level ${i}</button> `;
+            }
+            $("#level-buttons").html(buttonsHtml);
+            console.log("level updated added");
+        }
+
+        function checkEmptyStages() {
+            $(".level-section").each(function() {
+                let stageCount = $(this).find(".stage-card").length;
+                let emptyStageDiv = $(this).find(".empty-stage");
+                if (stageCount > 0) {
+                    emptyStageDiv.hide();
+                } else {
+                    emptyStageDiv.show();
+                }
+            });
+        }
+
+        function canAddLevel() {
+            let hasEmptyStage = false;
+            console.log($('.level-section').length);
+            
+            
+            $(".level-section").each(function() {
+                console.log('Cards: ',$(this).find(".stage-card").length);
+                
+                if ($(this).find(".stage-card").length === 0) {
+                    hasEmptyStage = true;
+                    return false; // Break the loop
+                }
+            });
+            return !hasEmptyStage;
+        }
+
+        // Add Initial Level
+        updateLevelButtons();
+        // addLevel();
+
+        $("#add-level-btn").click(function() {
+            if (!canAddLevel()) {
+                $("#flash-message").html(`
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Warning!</strong> You cannot add a new level while a previous level has no stages.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `);
+                return;
+            }
+
+            levelCount++;
+            updateLevelButtons();
+            addLevel();
+        });
+
+        function addLevel() {
+            let newLevel = `
+            <div id="level-${levelCount}" class="level-section p-3 border rounded bg-white shadow-sm mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">
+                        Level ${levelCount}: 
+                        <span contenteditable="true" class="editable-level-name">Enter Level Name</span> 
+                        <i class="fas fa-edit text-muted ms-1"></i>
+                    </h5>
+                    <button class="btn btn-sm btn-success add-stage-btn">
+                        <i class="fas fa-plus"></i> Add Stage
+                    </button>
+                </div>
+                <div class="empty-stage text-center text-muted py-3 border rounded mt-3" style="border: 2px dashed #ccc; transition: all 0.3s ease;">
+                    <i class="fas fa-plus-circle fa-2x text-primary"></i>
+                    <p class="m-0">Click to add stage</p>
+                </div>
+                <div class="stages-container row mt-3"></div>
+            </div>`;
+
+            $("#levels-container").append(newLevel);
+        }
+
+        // Scroll to Level on Click
+        $(document).on("click", ".level-btn", function() {
+            let targetId = $(this).data("level");
+            $("html, body").animate({
+                scrollTop: $("#" + targetId).offset().top - 60
+            }, 500);
+        });
+
+        let selectedStageContainer = null; // Store reference globally
+
+
+        $(document).on("click", ".add-stage-btn, .empty-stage", function() {
+            console.log("add stage button clicked");
+            selectedStageContainer = $(this).closest(".level-section").find(".stages-container");
+            $("#openStageModal").click();
+            
+        });
+
+        $("#saveStage").on("click", function() {
+            let stageName = $("#stageName").val().trim();
+            let dialogue = $("#dialogue").val().trim();
+            let repeatCount = $("#repeatCount").val();
+          
+            let endConversation = $("#endConversation").is(":checked") ? "True" : "False";
+            let nextStage = $("#nextStage").val();
+            let yesRedirect = $("#yesRedirect").val();
+            let noRedirect = $("#noRedirect").val();
+
+            if (!stageName || !dialogue) {
+                alert("Stage Name and Dialogue are required!");
+                return;
+            }
+
+            let levelID = selectedStageContainer.closest(".level-section").attr("id").split("-")[1];
+            let stageIndex = selectedStageContainer.children().length;
+            let stagePrefix = String.fromCharCode(65 + stageIndex);
+            let fullStageName = `${levelID}${stagePrefix} - ${stageName}`;
+
+            let endConversationBadge = endConversation === "True" ?
+                `<span class="badge bg-danger mx-2">End</span>` : "";
+
+            if (editingStage) {
+                editingStage.find("p.fw-bold").text(fullStageName);
+                editingStage.find("p.text-muted").text(dialogue);
+                editingStage.find("p:contains('Stage Repeats')").html(
+                    `<strong>End Conversation:</strong> ${endConversation} | <strong>Stage Repeats:</strong> ${repeatCount}`
+                );
+                // editingStage.find("p:contains('Allow Barge In')").html(
+                //     `<strong>Allow Barge In:</strong> ${allowBarge}`
+                // );
+               
+
+                if (endConversation === "True") {
+                    if (!editingStage.find(".badge.bg-danger").length) {
+                        editingStage.find(".action-icons").prepend(endConversationBadge);
+                    }
+                } else {
+                    editingStage.find(".badge.bg-danger").remove();
+                }
+
+                editingStage = null;
+            } else {
+                let newStage = `
+            <div class="stage-card-col col-md-4" data-stage-id="${stagePrefix}" data-level-id="${levelID}">
+                <div class="stage-card p-2 border rounded shadow-sm mt-3" style="background: #fff; transition: all 0.3s ease-in-out;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <p class="fw-bold mb-1 stage-name text-primary">${fullStageName}</p>
+                        <div class="action-icons">
+                            ${endConversationBadge}
+                            <i class="fas fa-edit text-primary edit-stage me-1" style="cursor:pointer;"></i>
+                            <i class="fas fa-copy text-warning copy-stage me-1" style="cursor:pointer;"></i>
+                            <i class="fas fa-trash-alt text-danger delete-stage me-1" style="cursor:pointer;"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted">${dialogue}</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Stage Repeats:</strong> ${repeatCount}</p>
+                        </div>  
+                      
+                    </div>
+
+                   
+                <!-- New Row for Next Stage Dropdown -->
+                    <div class="row mt-2">
+                        <div class="col-md-4 d-flex align-items-center">
+                            <label for="nextStageSelect" class="fw-bold">Next Stage:</label>
+                        </div>    
+                        <div class="col-md-8">                        
+                            <div class="multiselect-dropdown">
+                                <div class="dropdown-button">
+                                    <div class="selected-items">
+                                        <span class="placeholder">Select options...</span>
+                                    </div>
+                                    <div class="dropdown-icon">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </div>
+
+                                <div class="dropdown-menu py-0">
+                                    <div class="search-container px-2 py-1">
+                                        <i class="fas fa-search search-icon"></i>
+                                        <input type="text" class="search-input" placeholder="Search options...">
+                                    </div>
+
+                                    <div class="dropdown-content">
+                                        <div class="select-all-container">
+                                            <label class="select-all-option">
+                                                <input type="checkbox" class="select-all-checkbox">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="select-all-text">Select All</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="options-container">
+                                            <!-- Dynamic options will be appended here -->
+                                        </div>
+                                    </div>
+
+                                    <div class="clear-all-container py-1">
+                                        <button class="clear-all-button">Clear all selections</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>`;
+                if (selectedStageContainer) {
+                    selectedStageContainer.append(newStage);
+                    selectedStageContainer.prev(".empty-stage").hide();
+                }
+            }
+
+            $("#stageModal").modal("hide");
+            $("#stageForm")[0].reset();
+        });
+
+
+        $(document).on("click", ".delete-stage", function() {
+            let stageContainer = $(this).closest(".stages-container");
+            $(this).closest(".stage-card-col").fadeOut(300, function() {
+                $(this).remove();
+                checkEmptyStages(); // Ensure empty stage is visible if no stages are left
+            });
+        });
+
+
+        $(document).on("click", ".copy-stage", function() {
+            let copiedStage = $(this).closest(".stage-card");
+            let stageContainer = copiedStage.closest(".stage-card-col")
+                .parent(); // Get parent container
+
+            let stageText = copiedStage.find("p.fw-bold").text().trim();
+            let dialogue = copiedStage.find("p.text-muted").text().trim();
+            let repeatCount = copiedStage.find("p:contains('Stage Repeats')").text().split(":")[1]
+                .trim();
+            // let allowBarge = copiedStage.find("p:contains('Allow Barge In')").text().split(":")[1]
+            //     .trim();
+          
+            // let nextStage = copiedStage.find("p:contains('Next Stage')").text().split(":")[1].trim();
+            // let yesRedirect = copiedStage.find("p:contains('Yes Redirect')").text().split(":")[1]
+            //     .trim();
+            // let noRedirect = copiedStage.find("p:contains('No Redirect')").text().split(":")[1].trim();
+            let endConversation = copiedStage.find(".badge.bg-danger").length > 0 ? "True" : "False";
+
+            let levelID = stageText.split(" ")[0].match(/\d+/)[0]; // Extract only numbers
+            let existingStages = stageContainer.children(".stage-card-col")
+                .length; // Count existing stages
+            let newStagePrefix = String.fromCharCode(65 + existingStages); // Next letter
+            let newStageName = `${levelID}${newStagePrefix} - ${stageText.split(" - ")[1]}`;
+
+            let endConversationBadge = endConversation === "True" ?
+                `<span class="badge bg-danger mx-2">End</span>` : "";
+
+            let copiedStageHTML = `
+                <div class="stage-card-col col-md-4">
+                    <div class="stage-card p-2 border rounded shadow-sm mt-3" style="background: #fff; transition: all 0.3s ease-in-out;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="fw-bold mb-1 stage-name text-primary">${newStageName}</p>
+                            <div class="action-icons">
+                                ${endConversationBadge}
+                                <i class="fas fa-edit text-primary edit-stage me-1" style="cursor:pointer;"></i>
+                                <i class="fas fa-copy text-warning copy-stage me-1" style="cursor:pointer;"></i>
+                                <i class="fas fa-trash-alt text-danger delete-stage me-1" style="cursor:pointer;"></i>
+                            </div>
+                        </div>
+                        <p class="text-muted">${dialogue}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Stage Repeats:</strong> ${repeatCount}</p>
+                            </div>  
+                        
+                        </div>
+
+                       
+                        
+                    <!-- New Row for Next Stage Dropdown -->
+                        <div class="row mt-2">
+                            <div class="col-md-4 d-flex align-items-center">
+                                <label for="nextStageSelect" class="fw-bold">Next Stage:</label>
+                            </div>    
+                            <div class="col-md-8">                        
+                                <div class="multiselect-dropdown">
+                                    <div class="dropdown-button">
+                                        <div class="selected-items">
+                                            <span class="placeholder">Select options...</span>
+                                        </div>
+                                        <div class="dropdown-icon">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="dropdown-menu py-0">
+                                        <div class="search-container px-2 py-1">
+                                            <i class="fas fa-search search-icon"></i>
+                                            <input type="text" class="search-input" placeholder="Search options...">
+                                        </div>
+
+                                        <div class="dropdown-content">
+                                            <div class="select-all-container">
+                                                <label class="select-all-option">
+                                                    <input type="checkbox" class="select-all-checkbox">
+                                                    <span class="checkbox-custom"></span>
+                                                    <span class="select-all-text">Select All</span>
+                                                </label>
+                                            </div>
+
+                                            <div class="options-container">
+                                                <!-- Dynamic options will be appended here -->
+                                            </div>
+                                        </div>
+
+                                        <div class="clear-all-container py-1">
+                                            <button class="clear-all-button">Clear all selections</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            stageContainer.append(copiedStageHTML);
+        });
+
+
+
+        let editingStage = null; // Store the reference of the stage being edited
+
+        $(document).on("click", ".edit-stage", function() {
+            editingStage = $(this).closest(".stage-card"); // Store the card being edited
+
+            let stageText = editingStage.find("p.fw-bold").text().trim();
+            let dialogue = editingStage.find("p.text-muted").text().trim();
+            let repeatCount = editingStage.find("p:contains('Stage Repeats')").text().split(":")[1]
+                .trim();
+            // let allowBarge = editingStage.find("p:contains('Allow Barge In')").text().split(":")[1]
+            //     .trim();
+            // let classifier = editingStage.find("p:contains('Classifier')").text().split(":")[1].split(
+            //     "|")[0].trim();
+            // let scoreThreshold = editingStage.find("p:contains('Score Threshold')").text().split(":")[1]
+            //     .trim();
+            let endConversation = editingStage.find(".badge.bg-danger").length > 0 ? true : false;
+
+            $("#stageName").val(stageText.split(" - ")[1]); // Extract the stage name
+            $("#dialogue").val(dialogue);
+            $("#repeatCount").val(repeatCount);
+            // $("#allowBarge").val(allowBarge);
+            // $("#classifier").val(classifier);
+            // $("#scoreThreshold").val(scoreThreshold);
+            $("#endConversation").prop("checked", endConversation);
+
+            $("#stageModal").modal("show");
+        });
+
+
+
+        $(document).on("keydown", ".editable-level-name", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                $(this).blur();
+            }
+        });
+
+        let stagePrefixes = []; // Array to store unique first 3 characters
+
+        // Function to extract first 3 characters and update the list
+        function storeStagePrefix() {
+            let newPrefixes = [];
+
+            $(".stage-name").each(function() {
+                let stageName = $(this).text().trim(); // Get text of each .stage-name
+                let prefix = stageName.substring(0, 3); // Extract first 3 characters
+
+                if (prefix) {
+                    newPrefixes.push(prefix);
+                }
+            });
+
+            // Update the global stagePrefixes array
+            stagePrefixes = [...new Set(newPrefixes)]; // Remove duplicates
+
+            console.log("Updated Stage Prefixes: ", stagePrefixes);
+
+            updateDropdownOptions(); // Update dropdown options
+        }
+
+        // Function to update **all** dropdowns dynamically without removing selected options
+        function updateDropdownOptions() {
+            $(".next-stage-select").each(function() {
+                let $dropdown = $(this);
+
+                // Store the currently selected option
+                let selectedValue = $dropdown.val();
+
+                $dropdown.empty().append(
+                '<option value="">Select Next Stage</option>'); // Reset options
+
+                $.each(stagePrefixes, function(index, prefix) {
+                    let isSelected = selectedValue === prefix ? "selected" :
+                    ""; // Check if this option was previously selected
+                    $dropdown.append(
+                        `<option value="${prefix}" ${isSelected}>${prefix}</option>`);
+                });
+
+                // console.log("Dropdown updated, keeping selected option:", selectedValue);
+            });
+        }
+
+        // Event listener for actions (edit, copy, delete)
+        $(document).on("click", ".edit-stage, .copy-stage, .delete-stage, #saveStage", function() {
+            setTimeout(() => {
+                storeStagePrefix(); // Store prefix when an action is clicked
+            }, 500);
+        });
+
+        // Event listener for deleting a stage
+        $(document).on("click", ".delete-stage", function() {
+            $(this).closest(".stage-card-col").remove(); // Remove the stage from DOM
+            setTimeout(() => {
+                storeStagePrefix(); // Update prefixes after deletion
+            }, 500);
+        });
+
+        // Ensure dropdown updates initially
+        storeStagePrefix();
+
+    });
+</script>
+
+
+
+<script>
+
+
+    // Wait for the DOM to be fully loaded
+    document.addEventListener("DOMContentLoaded", function() {
+        // Retrieve the bot information from the query string or backend (if needed)
+        const params = new URLSearchParams(window.location.search);
+        const botName = params.get('botName');
+        const botUuid = params.get('botUuid');
+        const workflowUuid = params.get('workflowUuid');
+
+        // Populate the form fields with the bot data
+        if (botName && botUuid && workflowUuid) {
+            document.getElementById('voicebotName').value = botName;
+            document.getElementById('voicebotUuid').value = botUuid;
+            document.getElementById('uuid').value = workflowUuid;
+        }
+
+        // Workflow form submission logic
+        document.getElementById('workflowForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const workflowName = document.getElementById('workflowName').value.trim();
+            if (!workflowName) {
+                alert('Please enter a workflow name!');
+                return;
+            }
+
+            // You can send the workflow data to your backend here (optional)
+            const workflowData = {
+                workflow_name: workflowName,
+                voicebot_uuid: botUuid,
+                workflow_uuid: workflowUuid
+            };
+
+            // For now, just log the workflow data to the console
+            console.log('Workflow Data:', workflowData);
+
+            // After creating the workflow, you can redirect to another page or show a success message
+            alert('Workflow Created Successfully!');
+            // Redirect to a different page after creation (optional)
+            window.location.href = '/dashboard.html'; // Example redirection
+        });
+    });
+</script>
+<!-- ui options js -->
+<script>
+
+document.getElementById("startCallButton").addEventListener("click", function() {
+    console.log("start call button clicked")
+    const mobileNumber = document.getElementById("mobileNumberInput").value;
+    console.log("mobile number:",mobileNumber)
+    const workflowUuid = document.getElementById("uuid").value.trim();
+    console.log("workflowuuid:",workflowUuid)
+    const userId = "{{ user_id }}";
+    console.log("userId:",userId)
+
+    // Basic validation
+    if (!mobileNumber) {
+        alert("Please enter a mobile number");
+        return;
+    }
+    if (!workflowUuid) {
+        alert("Missing workflow configuration");
+        return;
+    }
+
+    // Send request with correct endpoint and keys
+    fetch(`/start-call/${workflowUuid}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            mobile_numbers: mobileNumber,  
+            user_id: userId,
+            workflow_uuid: workflowUuid
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message || "Call initiated successfully!");
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Failed to start call. Please check console for details.");
+    });
+});
+
+
+
+
+document.getElementById("uploadCsvBtn").addEventListener("click", function () {
+    console.log("button clicked");
+
+    let fileInput = document.getElementById("csvUpload");
+    let file = fileInput.files[0];
+
+    const voicebotName = document.getElementById("voicebotName").value.trim();
+    const voicebotUuid = document.getElementById("voicebotUuid").value.trim();
+    const workflowName = document.getElementById("workflowName").value.trim();
+    const workflowId = document.getElementById("uuid").value.trim(); 
+    console.log("Workflow ID (UUID):", workflowId); // Debugging
+
+    if (!file) {
+        alert("Please select a CSV file to upload.");
+        return;
+    }
+
+    if (!workflowId) {
+        alert("Workflow ID is missing!");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("file", file);
+    formData.append("voicebotUuid", voicebotUuid);
+    formData.append("voicebotName", voicebotName);
+    formData.append("uuid", workflowId);  // Ensure it's sent with the correct key
+    formData.append("workflowName", workflowName);
+
+    fetch("/upload_csv", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.file_path) {
+            // Extract file name from the file path
+            const fileName = data.file_path.split('/').pop();  // Get the file name from the full path
+            document.getElementById("uploadedFileName").innerText = "Uploaded File: " + fileName;
+            console.log(fileName)
+        }
+
+        // Show the "Create Variables" button after upload is complete
+        document.getElementById("createVariablesBtn").style.display = "inline-block"; // Ensure it's visible
+        document.getElementById("csvColumns").style.display = "inline-block"; // Make sure the columns div is also visible
+        console.log("set values")
+    })
+    .catch(error => {
+        console.error("Error uploading file:", error);
+        alert("Failed to upload file.");
+    });
+});
+
+document.getElementById("createVariablesBtn").addEventListener("click", function () {
+    const workflowId = document.getElementById("uuid").value.trim();
+    if (!workflowId) {
+        alert("Workflow ID is missing!");
+        return;
+    }
+
+    // Fetch columns and map to variables
+    fetch(`/get_columns_for_workflow/${workflowId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.columns && data.columns.length > 0) {
+                const columnsList = document.getElementById("columnsList");
+                columnsList.innerHTML = ""; // Clear previous columns list
+                data.columns.forEach((column) => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        <label for="variableName_${column}">${column}:</label>
+                        
+                        <input type="checkbox" class="variableCheckbox" data-column="${column}">
+                    `;
+                    columnsList.appendChild(li);
+                });
+
+                // Show the CSV columns section
+                document.getElementById("csvColumns").style.display = "block";
+                document.getElementById("saveVariableMappingBtn").style.display = "inline-block"; // Show the button
+
+            } else {
+                alert("No columns available for this workflow.");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching columns:", error);
+            alert("Failed to fetch columns.");
+        });
+});
+
+// New Event Listener to Handle Save Variable Mapping
+document.getElementById("saveVariableMappingBtn").addEventListener("click", function () {
+    const selectedColumns = [];
+    
+    // Get all checked checkboxes
+    const checkboxes = document.querySelectorAll(".variableCheckbox:checked");
+    
+    checkboxes.forEach((checkbox) => {
+        selectedColumns.push(checkbox.getAttribute("data-column"));
+    });
+    
+    if (selectedColumns.length === 0) {
+        alert("Please select at least one column.");
+        return;
+    }
+
+    const workflowId = document.getElementById("uuid").value.trim();
+    if (!workflowId) {
+        alert("Workflow ID is missing!");
+        return;
+    }
+
+    // Send the selected columns to the backend for saving
+    fetch("/save_variable_mapping", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            workflowId: workflowId,
+            selectedColumns: selectedColumns
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Variable mapping saved successfully!");
+        } else {
+            alert("Failed to save variable mapping.");
+        }
+    })
+    .catch(error => {
+        console.error("Error saving variable mapping:", error);
+        alert("Error saving variable mapping.");
+    });
+});
+
+
+</script>
+
+<script>
+        
+    // Add this variable to track selected workflow
+    let selectedWorkflowUUID = null;
+
+    // Modified test call handler
+    document.getElementById('startTestCall').addEventListener('click', function() {
+        const testSettings = {
+            mobile_number: document.getElementById('testMobileNumber').value,
+            voice: document.getElementById('voiceSelect').value,
+            language: document.getElementById('languageSelect').value,
+            interruption: document.getElementById('interruptionSelect').value,
+            call_duration: parseInt(document.getElementById('callDuration').value),
+            ivr_detect: document.getElementById('ivrDetectCheckbox').checked,
+            workflow_uuid: document.getElementById('uuid').value // Get UUID from workflow creation
+        };
+
+        if (!testSettings.workflow_uuid) {
+            alert('Please create or select a workflow first!');
+            return;
+        }
+
+        fetch('/start_test_call', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(testSettings)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Test call initiated!');
+                console.log('Call UUID:', data.call_uuid);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to start test call');
+        });
+    });
+
+    // Add this to set workflow UUID when creating/selecting
+    function setWorkflowUUID(uuid) {
+        selectedWorkflowUUID = uuid;
+        document.getElementById('uuid').value = uuid;
+    }
+
+    // Update your workflow creation/import functions to call setWorkflowUUID()
+
+
+
+</script>
+<script>
+
+document.getElementById("exportBtn").addEventListener("click", async function () {
+    try {
+        const workflowName = document.getElementById("workflowName").value.trim();
+        const uuidElement = document.getElementById("uuid"); 
+        const uuid = uuidElement ? uuidElement.value.trim() : ""; // Check if UUID field exists
+        
+        if (!workflowName) {
+            alert("Please enter a workflow name.");
+            return;
+        }
+        console.log(workflowName)
+
+        console.log("Export button is clicked");
+        // const exportedData = editor.export();
+        const userId = "{{ user_id }}";  // Passed from Flask template
+        // const dataStr = JSON.stringify(exportedData, null, 2);
+        // console.log(dataStr);
+        // const blob = new Blob([dataStr], { type: "application/json" });
+        
+        // Use existing UUID if present, otherwise generate a new one
+        // const fileName = (uuid ? uuid : generateUUID()) + ".json";
+        // console.log("File name:", fileName);
+
+
+
+        const formData = new FormData();
+        console.log("FormData before appending:", formData);
+        // formData.append("file", new File([blob], fileName, { type: "application/json" }));
+        formData.append("user_id", userId);  // Attach user_id
+        formData.append("workflowName", workflowName);
+        // formData.append("uuid", uuid ? uuid : generateUUID());  // Ensure UUID is sent
+
+        // Collect additional details
+        formData.append("language", document.getElementById("languageSelect").value);
+        formData.append("voice", document.getElementById("voicesSelect").value);
+        formData.append("call_duration", document.getElementById("callDuration").value);
+        formData.append("interruption", document.getElementById("interruptionToggle").value);
+        formData.append("ivr_detect", document.getElementById("ivrDetect").value);
+        formData.append("bot_message", document.getElementById("botMessage").value);
+
+        // Collect Voicebot Name and UUID
+        const voicebotName = document.getElementById("voicebotName").value.trim();
+        const voicebotUuid = document.getElementById("voicebotUuid").value.trim();
+        
+        if (voicebotName && voicebotUuid) {
+            formData.append("voicebotName", voicebotName);  // Add Voicebot Name to FormData
+            formData.append("voicebotUuid", voicebotUuid);  // Add Voicebot UUID to FormData
+        }
+        formData.append("uuid", uuid);
+
+
+        console.log("User ID:", userId);
+
+        const response = await fetch("/export-flowchart", {
+            method: "POST",
+            body: formData,
+        });
+
+        console.log("FormData after appending:", formData);
+        console.log("Response:", response);
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log(result);
+        alert("Flowchart exported and sent to backend successfully!");
+        // location.reload();
+        // Hide the Create Workflow page
+        // document.getElementById("workflowCreatePage").classList.add("d-none");
+
+        // Show the Workflows page
+        // document.getElementById("workflows").classList.remove("d-none");
+        
+
+        
+    } catch (error) {
+        console.error("Error exporting flowchart:", error);
+        alert("Failed to export flowchart. Please try again.");
+    }
+});
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+
+        
+</script>
+<script>
+   document.addEventListener("DOMContentLoaded", function() {
+    const sidebarButtons = document.querySelectorAll(".sidebar-menu-button");
+    
+    sidebarButtons.forEach(button => {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+            const target = this.getAttribute("data-target");
+            // Use Flask's URL routing instead of direct HTML file access
+            window.location.href = `/dashboard/${target}`;
+        });
+    });
+
+    // Handle active section on page load
+    const pathSegments = window.location.pathname.split('/');
+    const currentSection = pathSegments[pathSegments.length - 1];
+    if(currentSection) {
+        const activeButton = document.querySelector(`[data-target="${currentSection}"]`);
+        if(activeButton) {
+            activeButton.classList.add("active");
+            document.querySelectorAll(".content-page").forEach(page => {
+                page.classList.toggle("d-none", page.id !== currentSection);
+            });
+        }
+    }
+});
+    </script>

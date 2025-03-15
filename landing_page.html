@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voicebot Website</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Custom CSS for animations and styling -->
+    <style>
+        body {
+            background-color: #f7f8fc;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Custom Navbar Style */
+        .navbar {
+            background-color:  #2c2c2c; /* Light Grey Background */
+            padding: 15px;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #d7d9db !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            /* background: url('https://via.placeholder.com/1500x800') no-repeat center center/cover; */
+            background: url('https://images.unsplash.com/photo-1501594907352-412e98388da5') no-repeat center center/cover;
+            background-attachment: fixed;
+
+
+            height: 70vh;
+            color:  #2c2c2c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 30px;
+            animation: fadeIn 2s ease-out;
+        }
+        
+        /* Hero Text Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            animation: slideInLeft 1s ease-out;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            margin-bottom: 30px;
+            animation: slideInLeft 1.2s ease-out;
+        }
+
+        .btn-primary {
+            background-color:  #2c2c2c;
+            border-color: #1b1a1a;
+            padding: 12px 30px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            border-radius: 30px;
+        }
+        
+        .btn-primary:hover {
+            background-color:#585757;
+            border-color: #272626;
+        }
+
+        /* Feature Section */
+        .feature-card {
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 30px;
+            background-color: #ffffff;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        /* Footer */
+        .footer {
+            background-color:  #2c2c2c;
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        .footer a {
+            color:  #2c2c2c;
+            text-decoration: none;
+        }
+
+        /* Animations */
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Scroll down arrow animation */
+        .scroll-down {
+            font-size: 40px;
+            color: #ffffff;
+            margin-top: 30px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Voicebot</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- <li class="nav-item"><a class="nav-link active" href="#">Home</a></li> -->
+                    <!-- <li class="nav-item"><a class="nav-link" href="{ url_for('logout') }">Login</a></li> -->
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+
+                    <!-- <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li> -->
+                    <!-- <li class="nav-item"><a class="nav-link" href="#">Contact</a></li> -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Your Virtual Voice Assistant</h1>
+            <p>Elevate your business with AI-driven conversations, personalized responses, and seamless integrations.</p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Get Started</a>
+            <div class="scroll-down">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="container text-center my-5">
+        <h2 class="mb-5">Powerful Features</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-microphone fa-3x mb-3"></i>
+                    <h3>Voice Recognition</h3>
+                    <p>Our system can recognize and respond to voice commands with high accuracy.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-brain fa-3x mb-3"></i>
+                    <h3>AI-Powered Conversations</h3>
+                    <p>Leverage advanced AI to have seamless and human-like conversations with your users.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-cogs fa-3x mb-3"></i>
+                    <h3>Custom Integrations</h3>
+                    <p>Integrate the voicebot with your existing CRM, database, and more for customized workflows.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Voicebot Inc. | <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a></p>
+    </footer>
+
+    <!-- Optional JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

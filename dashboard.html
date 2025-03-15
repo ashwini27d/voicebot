@@ -1,0 +1,3070 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collapsible Sidebar</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+     
+    <!-- newly added script js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <!-- newly added css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+ 
+
+    <!-- Custom CSS -->
+     <link rel="stylesheet" href="styles.css"> 
+</head>
+
+
+<style>
+    :root {
+        --sidebar-width: 16rem;
+        --sidebar-width-icon: 4rem;
+        --sidebar-background: #f8f9fa;
+        --sidebar-foreground: #495057;
+        --sidebar-primary: #212529;
+        --sidebar-primary-foreground: #f8f9fa;
+        --sidebar-accent: #f1f3f5;
+        --sidebar-accent-foreground: #212529;
+        --sidebar-border: #dee2e6;
+        --sidebar-ring: #4dabf7;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        overflow-x: hidden;
+        background-color: #fff;
+    }
+
+    .wrapper {
+        display: flex;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: var(--sidebar-width);
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 999;
+        background: var(--sidebar-background);
+        color: var(--sidebar-foreground);
+        display: flex;
+        flex-direction: column;
+        transition: width 0.2s ease-in-out;
+        border-right: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar.collapsed {
+        width: var(--sidebar-width-icon);
+    }
+
+    @media (max-width: 768px) {
+  .sidebar {
+    margin-left: calc(var(--sidebar-width) * -1);
+  }
+
+  /* Use .collapsed instead of .active */
+  .sidebar.collapsed {
+    margin-left: 0;
+  }
+
+  .sidebar.collapsed + #content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+  }
+}
+
+    .sidebar-header {
+        border-bottom: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+
+    .sidebar-footer {
+        padding: 0.5rem;
+        border-top: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar-rail {
+        position: absolute;
+        top: 0;
+        right: -8px;
+        width: 8px;
+        height: 100%;
+        cursor: ew-resize;
+        z-index: 1000;
+    }
+
+    .sidebar-rail:hover::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 2px;
+        height: 100%;
+        background-color: var(--sidebar-border);
+    }
+
+    .dropdown-toggle::after {
+        display: none;
+    }
+
+    /* Team Switcher */
+    .team-btn {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem;
+        background: transparent;
+        border: none;
+        text-align: left;
+        gap: 0.5rem;
+    }
+
+    .team-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        background-color: var(--sidebar-primary);
+        color: var(--sidebar-primary-foreground);
+        border-radius: 0.375rem;
+        flex-shrink: 0;
+    }
+
+    .team-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .team-name {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .team-plan {
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .team-icon-small {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 1px solid var(--sidebar-border);
+        border-radius: 0.25rem;
+        margin-right: 0.5rem;
+    }
+
+    .shortcut {
+        margin-left: auto;
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    /* Sidebar Group */
+    .sidebar-group {
+        margin-bottom: 1rem;
+    }
+
+    .sidebar-group-label {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--sidebar-foreground);
+        opacity: 0.7;
+    }
+
+    /* Sidebar Menu */
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu-item {
+        margin-bottom: 0.25rem;
+    }
+
+    .sidebar-menu-button {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        text-decoration: none;
+        color: var(--sidebar-foreground);
+        gap: 0.5rem;
+        position: relative;
+        transition: background-color 0.2s;
+    }
+
+    .sidebar-menu-button:hover,
+    .sidebar-menu-button.active {
+        background-color: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+    }
+
+    .sidebar-menu-button i:first-child {
+        width: 1rem;
+        text-align: center;
+    }
+
+    .submenu-icon {
+        transition: transform 0.2s;
+    }
+
+    .sidebar-menu-button[aria-expanded="true"] .submenu-icon {
+        transform: rotate(90deg);
+    }
+
+    .submenu {
+        list-style: none;
+        padding-left: 1.75rem;
+        margin-top: 0.25rem;
+        border-left: 1px solid var(--sidebar-border);
+    }
+
+    .submenu li {
+        margin-bottom: 0.25rem;
+    }
+
+    .submenu a {
+        display: block;
+        padding: 0.375rem 0.5rem;
+        color: var(--sidebar-foreground);
+        text-decoration: none;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        transition: background-color 0.2s;
+    }
+
+    .submenu a:hover {
+        background-color: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+    }
+
+    /* Action Button */
+    .action-button {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1.25rem;
+        height: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.25rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .sidebar-menu-button:hover .action-button {
+        opacity: 1;
+    }
+
+    .action-button:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    /* User Button */
+    .user-btn {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 0.5rem;
+        background: transparent;
+        border: none;
+        text-align: left;
+        gap: 0.5rem;
+    }
+
+    .avatar {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.375rem;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .user-name {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-email {
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Content */
+    #content {
+        width: calc(100% - var(--sidebar-width));
+        margin-left: var(--sidebar-width);
+        min-height: 100vh;
+        transition: margin-left 0.2s ease-in-out, width 0.2s ease-in-out;
+    }
+
+    .sidebar.collapsed+#content {
+        width: calc(100% - var(--sidebar-width-icon));
+        margin-left: var(--sidebar-width-icon);
+    }
+
+    .content-header {
+        height: 4rem;
+        height: 59px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--sidebar-border);
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+    }
+
+    .content-body {
+        padding: 1rem;
+    }
+
+    .aspect-video {
+        aspect-ratio: 16 / 9;
+    }
+
+    .content-main {
+        min-height: calc(100vh - 10rem);
+    }
+
+    /* Collapsed Sidebar Styles */
+    .sidebar.collapsed .team-info,
+    .sidebar.collapsed .user-info,
+    .sidebar.collapsed .sidebar-menu-button span,
+    .sidebar.collapsed .sidebar-group-label,
+    .sidebar.collapsed .submenu,
+    .sidebar.collapsed .submenu-icon,
+    .sidebar.collapsed .projects-group {
+        display: none;
+    }
+
+    .sidebar.collapsed .sidebar-menu-button {
+        justify-content: center;
+        padding: 0.5rem;
+    }
+
+    .sidebar.collapsed .team-btn,
+    .sidebar.collapsed .user-btn {
+        justify-content: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .sidebar {
+            margin-left: calc(var(--sidebar-width) * -1);
+        }
+
+        .sidebar.active {
+            margin-left: 0;
+        }
+
+        #content {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .sidebar.active+#content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+        }
+    }
+
+    /* Dark Mode */
+    .dark {
+        --sidebar-background: #212529;
+        --sidebar-foreground: #e9ecef;
+        --sidebar-primary: #f8f9fa;
+        --sidebar-primary-foreground: #212529;
+        --sidebar-accent: #343a40;
+        --sidebar-accent-foreground: #f8f9fa;
+        --sidebar-border: #343a40;
+        --sidebar-ring: #4dabf7;
+    }
+
+    .dark body {
+        background-color: #121212;
+        color: #e9ecef;
+    }
+
+    /* drawflow existing css */
+      /* Existing Drawflow styles (unchanged) */
+      .drawflow, .drawflow .parent-node {
+            position: relative;
+        }
+
+        .parent-drawflow {
+            display: flex;
+            overflow: hidden;
+            touch-action: none;
+            outline: 0;
+        }
+
+        .drawflow {
+            width: 100%;
+            height: 100%;
+            user-select: none;
+            perspective: 0;
+        }
+
+        .drawflow .drawflow-node {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            background: #999797;
+            width: 160px;
+            min-height: 40px;
+            border-radius: 4px;
+            border: 2px solid #000;
+            color: #fff;
+            z-index: 2;
+            padding: 15px;
+        }
+       
+
+        .drawflow .drawflow-node.selected {
+            background: #616060;
+        }
+
+        .drawflow .drawflow-node:hover {
+            cursor: move;
+        }
+
+        .drawflow .drawflow-node .inputs, .drawflow .drawflow-node .outputs {
+            width: 0;
+        }
+
+        .drawflow .drawflow-node .drawflow_content_node {
+            width: 100%;
+            display: block;
+        }
+
+        .drawflow .drawflow-node .input, .drawflow .drawflow-node .output {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            border: 2px solid #000;
+            cursor: crosshair;
+            z-index: 1;
+            margin-bottom: 5px;
+        }
+
+        .drawflow .drawflow-node .input {
+            left: -27px;
+            top: 2px;
+            background: rgb(206, 207, 219);
+        }
+
+        .drawflow .drawflow-node .output {
+            right: -3px;
+            top: 2px;
+            background: #535153;
+        }
+
+        .drawflow svg {
+            z-index: 0;
+            position: absolute;
+            overflow: visible !important;
+        }
+
+        .drawflow .connection {
+            position: absolute;
+            pointer-events: none;
+            aspect-ratio: 1/1;
+        }
+
+        .drawflow .connection .main-path {
+            fill: none;
+            stroke-width: 5px;
+            stroke: #222122;
+            pointer-events: all;
+        }
+
+        .drawflow .connection .main-path:hover {
+            stroke: black;
+            cursor: pointer;
+        }
+
+        .drawflow .connection .main-path.selected {
+            stroke: #1b1a1a;
+        }
+
+        .drawflow .connection .point {
+            cursor: move;
+            stroke: #000;
+            stroke-width: 2;
+            fill: #fff;
+            pointer-events: all;
+        }
+
+        .drawflow .connection .point.selected, .drawflow .connection .point:hover {
+            fill: #868686;
+        }
+
+        .drawflow .main-path {
+            fill: none;
+            stroke-width: 5px;
+            stroke: #8f8b8b;
+        }
+
+        .drawflow-delete {
+            position: absolute;
+            display: block;
+            width: 30px;
+            height: 30px;
+            background: #ff66b2;
+            color: #fff;
+            z-index: 4;
+            border: 2px solid #fff;
+            line-height: 30px;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 50%;
+            font-family: monospace;
+            cursor: pointer;
+        }
+
+        .drawflow  .drawflow-delete {
+            margin-left: -15px;
+            margin-top: 15px;
+        }
+
+        .parent-node .drawflow-delete {
+            right: -15px;
+            top: -15px;
+        }
+
+</style>
+<style>
+    :root {
+        --sidebar-width: 16rem;
+        --sidebar-width-icon: 4rem;
+        --sidebar-background: #f8f9fa;
+        --sidebar-foreground: #495057;
+        --sidebar-primary: #212529;
+        --sidebar-primary-foreground: #f8f9fa;
+        --sidebar-accent: #f1f3f5;
+        --sidebar-accent-foreground: #212529;
+        --sidebar-border: #dee2e6;
+        --sidebar-ring: #4dabf7;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        overflow-x: hidden;
+        background-color: #fff;
+    }
+
+    .wrapper {
+        display: flex;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: var(--sidebar-width);
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 999;
+        background: var(--sidebar-background);
+        color: var(--sidebar-foreground);
+        display: flex;
+        flex-direction: column;
+        transition: width 0.2s ease-in-out;
+        border-right: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar.collapsed {
+        width: var(--sidebar-width-icon);
+    }
+
+    .sidebar-header {
+        border-bottom: 1px solid var(--sidebar-border);
+    }
+
+    .sidebar-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+
+    .sidebar-footer {
+        padding: 0.5rem;
+        border-top: 1px solid var(--sidebar-border);
+    }
+
+    /* Content */
+    #content {
+        width: calc(100% - var(--sidebar-width));
+        margin-left: var(--sidebar-width);
+        min-height: 100vh;
+        transition: margin-left 0.2s ease-in-out, width 0.2s ease-in-out;
+    }
+
+    .sidebar.collapsed+#content {
+        width: calc(100% - var(--sidebar-width-icon));
+        margin-left: var(--sidebar-width-icon);
+    }
+
+    .content-header {
+        height: 59px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--sidebar-border);
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+    }
+
+    .content-body {
+        padding: 1rem;
+    }
+
+    /* Drawflow Styles */
+    #drawflow {
+        width: 100%;
+        height: 600px;
+        border: 1px solid #ccc;
+        background: #f0f0f0;
+    }
+
+    .block {
+        padding: 10px;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: move;
+        user-select: none;
+        margin-bottom: 10px;
+    }
+
+    .drawflow .drawflow-node {
+        background: #999797;
+        width: 160px;
+        min-height: 40px;
+        border-radius: 4px;
+        border: 2px solid #000;
+        color: #fff;
+        padding: 15px;
+    }
+
+    .drawflow .drawflow-node.selected {
+        background: #616060;
+    }
+
+    .drawflow .drawflow-node:hover {
+        cursor: move;
+    }
+</style>
+<style>
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background: white;
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+    }
+    /* Options Container - Flexbox for single-row layout */
+.options-container {
+    display: flex;
+    align-items: center;  /* Align items in a single row */
+    flex-wrap: wrap;  /* Wrap to the next line if space is insufficient */
+    gap: 10px;
+    justify-content: flex-start;
+    margin-bottom: 15px;
+}
+
+/* Form Elements (Dropdowns & Inputs) */
+.options-container .form-label {
+    font-size: 13px;
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+
+.options-container .form-control {
+    width: 120px;  /* Reduce width for compact layout */
+    font-size: 13px;
+    padding: 4px;
+}
+
+/* Styling for Buttons */
+.options-container button {
+    padding: 4px 10px;  /* Smaller padding */
+    font-size: 12px;
+    min-width: 100px;
+    max-width: 140px;
+    border-radius: 5px;
+}
+
+/* Create Block Styling */
+#createBlock {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Save Workflow Button Alignment */
+.text-end {
+    text-align: right;
+}
+
+.options-class{
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+    justify-content: space-around;
+    /* align-items:; */
+    
+}
+.new-1{
+    margin: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .options-container {
+        flex-direction: row;  /* Stack on smaller screens */
+        align-items: flex-start;
+    }
+
+    .options-container .form-control,
+    .options-container button {
+        width: 100%;  /* Full width on mobile */
+    }
+}
+
+
+/* Voicebot Card Styling */
+#voicebotsList .card {
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+#voicebotsList .card:hover {
+    transform: translateY(-5px);
+}
+
+#voicebotsList .card h5 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+#voicebotsList .card p {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+
+</style>
+
+<style>
+    #testCallSection {
+    background-color: #2a2a2a;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#testCallSection input, 
+#testCallSection select {
+    margin: 8px 0;
+    padding: 8px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #333;
+    color: white;
+}
+
+#testCallSection button {
+    background-color: #007bff;
+    transition: background-color 0.3s;
+}
+
+#testCallSection button:hover {
+    background-color: #0056b3;
+}
+
+/* newly added css */
+.workflow-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        .workflow-card:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-custom {
+            width: 70px;
+        }
+
+        .stage-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dialogue-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-group button {
+            width: 70px;
+        }
+
+        /* Sticky Level Navigation */
+        #level-nav {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1000;
+            padding: 10px 0;
+        }
+
+        /* Active Level Styling */
+        .level-btn {
+            transition: 0.3s;
+        }
+
+        .level-btn.active {
+            background-color: black !important;
+            color: white !important;
+        }
+
+
+        /* Make the level name clearly editable */
+        .editable-level-name {
+            display: inline-block;
+            padding: 2px 5px;
+            border-bottom: 1px dashed transparent;
+            transition: all 0.3s ease;
+            cursor: text;
+        }
+
+        .editable-level-name:hover {
+            border-bottom: 1px dashed #007bff;
+        }
+
+        .editable-level-name:focus {
+            outline: none;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+        }
+
+        /* Improve Empty Stage Section */
+        .empty-stage {
+            cursor: pointer;
+        }
+
+        .empty-stage:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        /* General Card Styling */
+        .stage-card-col {
+            /* display: flex; */
+            justify-content: center;
+        }
+
+        .stage-card {
+            background: linear-gradient(135deg, #f0f2f5, #ffffff);
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            font-family: "Poppins", sans-serif;
+        }
+
+        .stage-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Stage Title */
+        .stage-card p.fw-bold {
+            font-size: 16px;
+            font-weight: 600;
+            color: #007bff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        /* Dialogue Text */
+        .stage-card p.text-muted {
+            font-size: 0.95rem;
+            color: #444;
+            margin-bottom: 12px;
+        }
+
+        /* Details Styling */
+        .stage-card p {
+            font-size: 0.88rem;
+            margin-bottom: 6px;
+            color: #555;
+        }
+
+        /* Improved Badge Styling */
+        .badge.bg-danger {
+            background: #ff4d4d;
+            color: white;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0px 2px 8px rgba(255, 77, 77, 0.5);
+        }
+
+        /* Action Icons */
+        .action-icons i {
+            font-size: 1rem;
+            padding: 6px;
+            border-radius: 50%;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .action-icons i:hover {
+            transform: scale(1.2);
+        }
+
+        /* Edit Icon */
+        .action-icons .fa-edit {
+            color: #007bff;
+            background: rgba(0, 123, 255, 0.1);
+            box-shadow: 0px 2px 5px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Copy Icon */
+        .action-icons .fa-copy {
+            color: #ffae00;
+            background: rgba(255, 174, 0, 0.1);
+            box-shadow: 0px 2px 5px rgba(255, 174, 0, 0.3);
+        }
+
+        /* Delete Icon */
+        .action-icons .fa-trash-alt {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            box-shadow: 0px 2px 5px rgba(220, 53, 69, 0.3);
+        }
+
+        /* Card Animation */
+        .stage-card:hover .action-icons i {
+            animation: glow 0.8s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+            }
+
+            to {
+                box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        /* Apply a global font */
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Customize modal header */
+        .modal-header {
+            /* background-color: #007bff;
+            color: white; */
+            font-size: 10px 12px;
+
+            border-radius: 5px 5px 0 0;
+        }
+
+        /* Improve input fields */
+        .form-control,
+        .form-select {
+            border-radius: 4px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+        }
+
+        /* Style the toggle switch */
+        .form-switch .form-check-input {
+            width: 2.5rem;
+            height: 1.5rem;
+        }
+
+        /* Customize buttons */
+        .btn-primary {
+            background-color: #007bff;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        
+</style>
+<style>
+    /* Updated Create Voicebot Card */
+    #createVoicebotCard {
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+    }
+    
+    #createVoicebotCard:hover {
+        background: #f1f5f9;
+        border-color: #6366f1;
+        transform: scale(1.02);
+    }
+    
+    #createVoicebotCard h5 {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    #createVoicebotCard h5 i {
+        font-size: 1.4rem;
+        color: #6366f1;
+    }
+    
+    /* Compact Voicebot Cards */
+    #voicebotsList {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    #voicebotsList .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    #voicebotsList .card:hover {
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    #voicebotsList .card h5 {
+        font-size: 1rem;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    #voicebotsList .card p {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin: 0;
+        font-family: monospace;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Enhanced Modal Styling */
+    #createVoicebotModal {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    #createVoicebotModal .modal-content {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    #createVoicebotModal h4 {
+        color: #1e293b;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+    
+    #botNameInput {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    #botNameInput:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    #saveBotButton {
+        background: #6366f1;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        width: 100%;
+        font-weight: 500;
+        transition: background 0.3s ease;
+    }
+    
+    #saveBotButton:hover {
+        background: #4f46e5;
+    }
+    
+    /* Icon-only version for collapsed sidebar */
+    .sidebar.collapsed #createVoicebotCard h5 span {
+        display: none;
+    }
+    
+    .sidebar.collapsed #createVoicebotCard h5::after {
+        content: "+";
+        font-size: 1.8rem;
+        color: #6366f1;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        #voicebotsList {
+            grid-template-columns: 1fr;
+        }
+        
+        #createVoicebotCard {
+            min-height: 100px;
+        }
+        
+        #createVoicebotModal .modal-content {
+            padding: 1.5rem;
+        }
+    }
+    </style>
+<!-- <style>
+    /* Dashboard Specific Styles */
+    #dashboard .content-main {
+        background: #f8fafc;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Create Voicebot Card */
+    #createVoicebotCard {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border: none;
+        color: white;
+        padding: 2rem 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    #createVoicebotCard::before {
+        content: '+';
+        font-size: 3rem;
+        position: absolute;
+        opacity: 0.1;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    #createVoicebotCard:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(99,102,241,0.3);
+    }
+    
+    /* Voicebots List Grid */
+    #voicebotsList {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    /* Voicebot Card Styling */
+    #voicebotsList .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        background: white;
+    }
+    
+    #voicebotsList .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+    
+    #voicebotsList .card h5 {
+        color: #1e293b;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    #voicebotsList .card p {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+    
+    /* Empty State */
+    #voicebotsList:empty::before {
+        content: "No voicebots created yet. Click the card above to create one!";
+        display: block;
+        text-align: center;
+        color: #94a3b8;
+        padding: 2rem;
+        width: 100%;
+    }
+    
+    /* Modal Styling */
+    #createVoicebotModal {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+    }
+    
+    #createVoicebotModal .modal-content {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 400px;
+    }
+    
+    #createVoicebotModal h4 {
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+    
+    #botNameInput {
+        border: 2px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    #botNameInput:focus {
+        border-color: #6366f1;
+        box-shadow: none;
+    }
+    
+    #saveBotButton {
+        background: #6366f1;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        width: 100%;
+        transition: background 0.3s ease;
+    }
+    
+    #saveBotButton:hover {
+        background: #4f46e5;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        #voicebotsList {
+            grid-template-columns: 1fr;
+        }
+        
+        #dashboard .content-main {
+            padding: 1rem;
+        }
+        
+        #createVoicebotCard {
+            padding: 1.5rem 1rem;
+        }
+    }
+    </style> -->
+
+
+<body>
+    
+
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <!-- Sidebar Header -->
+            <div class="sidebar-header">
+                <div class="dropdown">
+                    <button class="btn user-btn dropdown-toggle" type="button" id="userDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="avatar">
+                            <img src="https://ui-avatars.com/api/?name=S+N&background=random" alt="User">
+                        </div>
+                        <div class="user-info">
+                            <!-- <span class="user-name">{{ name }}</span> -->
+                            <span class="user-email">{{ user_id }}</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-down ms-auto"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li>
+                            <div class="dropdown-item-text">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar">
+                                        <img src="https://ui-avatars.com/api/?name=S+N&background=random"
+                                            alt="User">
+                                    </div>
+                                    <div class="user-info">
+                                        <span class="user-name">shadcn</span>
+                                        <span class="user-email">m@example.com</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-sparkles me-2"></i>Upgrade
+                                to Pro</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                         <li><a class="dropdown-item" href="#"><i
+                                    class="fa-solid fa-badge-check me-2"></i>Account</a></li>
+                        <li><a class="dropdown-item" href="#"><i
+                                    class="fa-solid fa-credit-card me-2"></i>Billing</a></li> 
+                        <li><a class="dropdown-item" href="#"><i
+                                    class="fa-solid fa-bell me-2"></i>Notifications</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item logout-btn" href="javascript:void(0)" title="Logout" 
+                               style="cursor: pointer;">
+                              <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                            </a>
+                          </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sidebar Content -->
+            <div class="sidebar-content">
+
+                <!-- Platform Section -->
+                <div class="sidebar-group">
+                    <div class="sidebar-group-label">Modules</div>
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="sidebar-menu-button active" data-target="dashboard">
+                                <i class="fa-solid fa-home"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="sidebar-menu-button" data-target="reports">
+                                <i class="fa-solid fa-window-maximize"></i>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="sidebar-menu-button" data-target="workflows">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                <span>Workflows</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="sidebar-menu-button" data-target="settings">
+                                <i class="fa-solid fa-map"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Projects Section -->
+                <div class="sidebar-group projects-group d-none">
+                    <div class="sidebar-group-label">Modules</div>
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="sidebar-menu-button active" data-target="dashboard">
+                                <i class="fa-solid fa-home"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="sidebar-menu-button" data-target="reports">
+                                <i class="fa-solid fa-window-maximize"></i>
+                                <span>Reports</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="sidebar-menu-button" data-target="workflows">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                <span>Workflows</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="#" class="sidebar-menu-button" data-target="settings">
+                                <i class="fa-solid fa-map"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+
+            </div>
+
+            <!-- Sidebar Rail -->
+            <div class="sidebar-rail d-none"></div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <header class="content-header">
+                <div class="d-flex align-items-center gap-2 px-4">
+                    <button id="sidebarToggle" class="btn btn-sm  p-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-panel-left ">
+                            <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                            <path d="M9 3v18"></path>
+                        </svg> </button>
+                    <div class="vr mx-2 h-4"></div> 
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <!-- <li class="breadcrumb-item d-none d-md-block"><a href="#">ChatBot</a></li> -->
+                             <!-- <li class="breadcrumb-item active" aria-current="page">Data Fetching</li>  -->
+                        </ol>
+                    </nav>
+                </div>
+            </header>
+            <div class="content-body">
+               
+                <div id="dashboard" class="content-page d-block">
+                    <h2 class="text-center">Main Dashboard</h2>
+                    <div id="userid">{{user_id}}</div>
+                    <div class="content-main mt-4 rounded bg-light p-4">
+                        <p>Welcome! This is the main dashboard.</p>
+                
+                        <!-- Create Voicebot Card -->
+                        <div class="card mt-3 p-3 text-center bg-white shadow-sm" id="createVoicebotCard" style="cursor: pointer;">
+                            <h5 class="mb-0">+ Create Voicebot</h5>
+                        </div>
+                
+                        <!-- Voicebots List -->
+                        <div id="voicebotsList" class="mt-4">
+                            <!-- Voicebot cards will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <!-- Modal for Creating Voicebot -->
+                <div id="createVoicebotModal" class="modal" style="display: none;">
+                    <div class="modal-content p-4 rounded shadow-lg">
+                        <h4>Create Voicebot</h4>
+                        <input type="text" id="botNameInput" class="form-control mt-2" placeholder="Enter bot name">
+                        <button class="btn btn-primary mt-3" id="saveBotButton">Save</button>
+                    </div>
+                </div>
+                
+
+                <div id="reports" class="content-page d-none">
+                    
+                    <h2 class="text-center">Reports</h2>
+
+                   
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>customer name</th>
+                                <th>calls</th>
+                                <th>Report</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody id="">
+                            <tr>
+                                <td>1</td>
+                                <td>1234567890</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info">
+                                        Report
+                                    </button>
+                                    <button class="btn btn-sm btn-danger">
+                                        Transcription
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>9876543210</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info">
+                                        Report
+                                    </button>
+                                    <button class="btn btn-sm btn-danger">
+                                        Transcription
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                </div>
+                <div id="workflows" class="content-page d-none">
+                    <h2 class="text-center">Workflows</h2>
+                    <div class="text-end mb-3">
+                        <button id="createWorkflowBtn" class="btn btn-primary">+</button>
+                    </div>
+                 
+                    <input type="text" id="botIdDisplay" class="form-control" placeholder="bot id" disabled>
+                    <input type="text" id="botName" class="form-control" placeholder="bot id" disabled>
+
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Workflow Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="workflowList">
+                            <tr>
+                                <td>1</td>
+                                <td>Lead Management</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info"><i class="fa-solid fa-eye"></i></button>
+                                    <button class="btn btn-sm btn-warning"><i class="fa-solid fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <div id="workflowCreatePage" class="content-page d-none">
+                    <p style="margin-right: 10px;"><strong>Login user id:</strong> {{ user_id }}</p>
+                    <h2 class="text-center">Create Workflow</h2>
+                    <div class="mb-3">
+                        <label for="csvUpload" class="form-label">Upload CSV File:</label>
+                        <input type="file" id="csvUpload" class="form-control" accept=".csv">
+                        <button class="btn btn-success mt-2" id="uploadCsvBtn">Upload</button>
+                        <p id="uploadedFileName" style="font-weight: bold;"></p>
+                        <input type="text" id="uploadedFileNameDisplay" class="form-control" placeholder="Enter Workflow Name">
+
+                    </div>
+                    <button class="btn btn-primary mt-3" id="createVariablesBtn" style="display: none;">Create Variables</button>
+                  
+
+                   
+                    <div id="csvColumns" style="display: none;">
+                        <h4>CSV Columns:</h4>
+                        <ul id="columnsList"></ul>
+                    </div>
+                    <button class="btn btn-success mt-3" id="saveVariableMappingBtn" style="display: none;">Save Variable Mapping</button>
+
+                    
+                
+                   
+                    <div class="mb-3">
+                        <label for="workflowName" class="form-label">Workflow Name</label>
+                        <input type="text" id="workflowName" class="form-control" placeholder="Enter Workflow Name">
+                        <input type="text" id="uuid" class="form-control" placeholder="UUID generate">
+                        <input type="text" id="voicebotUuid" class="form-control" placeholder="UUID generate">
+                        <input type="text" id="voicebotName" class="form-control" placeholder="Enter Voicebot Name">
+                    </div>
+                
+                  
+                   
+               
+                    <div class="text-end mt-3">
+                        <button class="export-btn" id="exportBtn">Save Workflow</button>
+                        <button id="saveWorkflowBtn" class="" style="background-color: transparent; width: 0px; height: 0px; display: none;"></button>
+                    </div>
+                    <input id="mobileNumberInput" type="number" placeholder="Enter mobile number" style="width: 160px; margin-right: -20px; margin-top: 60px; margin-left: 50px;">
+                    <button id="startCallButton" style="margin-top: 20px; width: 160px; background-color: #363636; color: rgb(252, 247, 247); border: none; padding: 10px; cursor: pointer; margin-left: 50px;">
+                        Start Call
+                    </button>
+                </div>
+
+               
+               
+
+                <div id="settings" class="content-page d-none">
+                    <h2 class="text-center">Settings Page</h2>
+                    <div class="content-main mt-4 rounded bg-light p-4">
+                        <p>This is the Settings page content.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/gh/alyssaxuu/flowy/flowy.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+
+    <!-- Custom JS -->
+     <script src="script.js"></script> 
+
+     <script>
+    const activeSection = "{{ active_section|default('dashboard') }}";
+    
+    document.querySelectorAll(".content-page").forEach(page => {
+        page.classList.toggle("d-none", page.id !== activeSection);
+    });
+        
+        
+// Replace existing sidebar toggle code with this
+$(document).ready(function() {
+  $('#sidebarToggle').on('click', function() {
+    $('#sidebar').toggleClass('collapsed');
+  });
+});
+
+
+
+
+document.getElementById("startCallButton").addEventListener("click", function() {
+    const mobileNumber = document.getElementById("mobileNumberInput").value.trim();
+    const workflowUuid = document.getElementById("uuid").value.trim();
+    const userId = "{{ user_id }}";
+
+    // Basic validation
+    if (!mobileNumber) {
+        alert("Please enter a mobile number");
+        return;
+    }
+    if (!workflowUuid) {
+        alert("Missing workflow configuration");
+        return;
+    }
+
+    // Send request with correct endpoint and keys
+    fetch(`/start_call1/${workflowUuid}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            mobile_numbers: mobileNumber,  
+            user_id: userId,
+            workflow_uuid: workflowUuid
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message || "Call initiated successfully!");
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Failed to start call. Please check console for details.");
+    });
+});
+
+
+
+
+document.getElementById("uploadCsvBtn").addEventListener("click", function () {
+    console.log("button clicked");
+
+    let fileInput = document.getElementById("csvUpload");
+    let file = fileInput.files[0];
+
+    const voicebotName = document.getElementById("voicebotName").value.trim();
+    const voicebotUuid = document.getElementById("voicebotUuid").value.trim();
+    const workflowName = document.getElementById("workflowName").value.trim();
+    const workflowId = document.getElementById("uuid").value.trim(); 
+    console.log("Workflow ID (UUID):", workflowId); // Debugging
+
+    if (!file) {
+        alert("Please select a CSV file to upload.");
+        return;
+    }
+
+    if (!workflowId) {
+        alert("Workflow ID is missing!");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("file", file);
+    formData.append("voicebotUuid", voicebotUuid);
+    formData.append("voicebotName", voicebotName);
+    formData.append("uuid", workflowId);  // Ensure it's sent with the correct key
+    formData.append("workflowName", workflowName);
+
+    fetch("/upload_csv", {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.file_path) {
+            // Extract file name from the file path
+            const fileName = data.file_path.split('/').pop();  // Get the file name from the full path
+            document.getElementById("uploadedFileName").innerText = "Uploaded File: " + fileName;
+            console.log(fileName)
+        }
+
+        // Show the "Create Variables" button after upload is complete
+        document.getElementById("createVariablesBtn").style.display = "inline-block"; // Ensure it's visible
+        document.getElementById("csvColumns").style.display = "inline-block"; // Make sure the columns div is also visible
+        console.log("set values")
+    })
+    .catch(error => {
+        console.error("Error uploading file:", error);
+        alert("Failed to upload file.");
+    });
+});
+
+document.getElementById("createVariablesBtn").addEventListener("click", function () {
+    const workflowId = document.getElementById("uuid").value.trim();
+    if (!workflowId) {
+        alert("Workflow ID is missing!");
+        return;
+    }
+
+    // Fetch columns and map to variables
+    fetch(`/get_columns_for_workflow/${workflowId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.columns && data.columns.length > 0) {
+                const columnsList = document.getElementById("columnsList");
+                columnsList.innerHTML = ""; // Clear previous columns list
+                data.columns.forEach((column) => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        <label for="variableName_${column}">${column}:</label>
+                        
+                        <input type="checkbox" class="variableCheckbox" data-column="${column}">
+                    `;
+                    columnsList.appendChild(li);
+                });
+
+                // Show the CSV columns section
+                document.getElementById("csvColumns").style.display = "block";
+                document.getElementById("saveVariableMappingBtn").style.display = "inline-block"; // Show the button
+
+            } else {
+                alert("No columns available for this workflow.");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching columns:", error);
+            alert("Failed to fetch columns.");
+        });
+});
+
+// New Event Listener to Handle Save Variable Mapping
+document.getElementById("saveVariableMappingBtn").addEventListener("click", function () {
+    const selectedColumns = [];
+    
+    // Get all checked checkboxes
+    const checkboxes = document.querySelectorAll(".variableCheckbox:checked");
+    
+    checkboxes.forEach((checkbox) => {
+        selectedColumns.push(checkbox.getAttribute("data-column"));
+    });
+    
+    if (selectedColumns.length === 0) {
+        alert("Please select at least one column.");
+        return;
+    }
+
+    const workflowId = document.getElementById("uuid").value.trim();
+    if (!workflowId) {
+        alert("Workflow ID is missing!");
+        return;
+    }
+
+    // Send the selected columns to the backend for saving
+    fetch("/save_variable_mapping", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            workflowId: workflowId,
+            selectedColumns: selectedColumns
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Variable mapping saved successfully!");
+        } else {
+            alert("Failed to save variable mapping.");
+        }
+    })
+    .catch(error => {
+        console.error("Error saving variable mapping:", error);
+        alert("Error saving variable mapping.");
+    });
+});
+
+
+
+
+
+         // Extract bot_id from URL query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    fetch('/api/voicebots')
+        .then(response => response.json())
+        .then(data => {
+            const voicebotsList = document.getElementById('voicebotsList');
+
+            // Check if there are any voicebots
+            if (data.length === 0) {
+                voicebotsList.innerHTML = '<p>No voicebots created yet.</p>';
+                return;
+            }
+
+
+            // Loop through the voicebots and create cards dynamically
+            data.forEach(voicebot => {
+                const card = document.createElement('div');
+                card.classList.add('card', 'mt-3', 'p-3', 'text-center', 'bg-white', 'shadow-sm');
+                card.style.cursor = 'pointer';
+
+                // Create delete icon
+                const deleteIcon = document.createElement('span');
+                deleteIcon.innerHTML = '❌'; // Unicode delete icon
+                deleteIcon.classList.add('position-absolute', 'top-0', 'end-0', 'm-2', 'cursor-pointer');
+                deleteIcon.style.color = 'red';
+                deleteIcon.style.fontSize = '18px';
+                deleteIcon.style.cursor = 'pointer';
+
+                // Handle delete action
+                deleteIcon.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent card click event
+
+                    const userId = "{{ user_id }}"; // Assuming it's passed from the backend
+
+                    if (confirm(`Are you sure you want to delete the bot "${voicebot.bot_name}"?`)) {
+                        fetch(`/api/voicebots/${voicebot.bot_id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ user_id: userId })
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.success) {
+                                card.remove(); // Remove the deleted bot from the UI
+                                alert('Voicebot deleted successfully.');
+                            } else {
+                                alert('Error deleting voicebot.');
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }
+                });
+
+
+                // Add the voicebot name and bot ID as content
+                card.innerHTML = `
+                    <h5 class="mb-0">${voicebot.bot_name}</h5>
+                    <p class="text-muted">${voicebot.bot_id}</p>
+                `;
+
+                // Add a click event to show workflows and display bot_id
+                card.addEventListener('click', () => {
+                    // Hide dashboard and show workflows page
+                    document.getElementById('dashboard').classList.add('d-none');
+                    document.getElementById('workflows').classList.remove('d-none');
+
+                    // Display the bot_id in the workflows page
+                    // document.getElementById('botIdDisplay').textContent = voicebot.bot_id;
+                    document.getElementById('botIdDisplay').value = voicebot.bot_id;
+                    document.getElementById('botName').value = voicebot.bot_name;
+                     // Log the updated bot ID to console
+                    const botId = document.getElementById("botIdDisplay").value;
+                    console.log("*************************bot id*******************", botId);
+
+                    const userId = "{{ user_id }}";
+
+                // Append the delete icon to the card
+            card.appendChild(deleteIcon);
+
+
+        fetch(`/get-workflows?user_id=${userId}&bot_id=${botId}`)
+            .then(response => response.json())
+            .then(workflows => {
+                console.log("Response from backend:", workflows);  // Debugging: Log the response
+                const workflowList = document.getElementById("workflowList");
+                workflowList.innerHTML = "";
+                console.log(botId)
+                workflows.forEach((workflow, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${workflow.workflowName}</td>  <!-- Display workflow name -->
+
+                        <td>
+                            <button class="btn btn-sm btn-info import-btn" data-workflow="${workflow.uuid}">
+                                <i class="fa fa-edit" ></i>
+
+                            </button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-workflow="${workflow.uuid}">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    workflowList.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error fetching workflows:", error));
+                });
+
+                // Append the card to the voicebots list
+                voicebotsList.appendChild(card);
+            });
+            
+        })
+        .catch(error => {
+            console.error('Error fetching voicebots:', error);
+        });
+
+
+
+
+ // Show the modal when the 'Create Voicebot' card is clicked
+document.getElementById('createVoicebotCard').addEventListener('click', function() {
+    console.log("clicked");
+    document.getElementById('createVoicebotModal').style.display = 'flex';
+});
+// Save the bot when the 'Save' button is clicked
+document.getElementById('saveBotButton').addEventListener('click', function() {
+    document.getElementById('createVoicebotModal').style.display = 'none';
+    const botName = document.getElementById('botNameInput').value.trim();
+    if (!botName) {
+        alert('Please enter a bot name!');
+        return;
+    }
+
+    // Generate a UUID
+    const botUUID = generateUUID();
+    const workflowUUID = generateUUID();
+    const userId = document.getElementById('userid').textContent.trim();
+
+
+
+    // Send the bot name and UUID to the backend
+    fetch('/create_bot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bot_name: botName, bot_id: botUUID ,user_id: userId})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Hide the modal
+            document.getElementById('createVoicebotModal').style.display = 'none';
+
+            // Hide the dashboard and show the workflow creation page
+            // document.getElementById('dashboard').classList.add('d-none');
+            // document.getElementById('workflowCreatePage').classList.remove('d-none');
+             // Redirect to dashboard_workflow.html page
+             // Build the URL with query parameters
+            // const redirectUrl = `/dashboard_workflow1?botName=${encodeURIComponent(botName)}&botUuid=${encodeURIComponent(botUUID)}&workflowUuid=${encodeURIComponent(workflowUUID)}`;
+            // window.location.href = '/dashboard_workflow1'; // No .html in the URL
+            //print(window.location.href)
+
+            
+              // Build the URL with query parameters
+            // const redirectUrl = `/dashboard_workflow1?botName=${encodeURIComponent(botName)}&botUuid=${encodeURIComponent(botUUID)}&workflowUuid=${encodeURIComponent(workflowUUID)}`;
+            const redirectUrl = `/dashboard_workflow1?botName=${encodeURIComponent(botName)}&botUuid=${encodeURIComponent(botUUID)}&workflowUuid=${encodeURIComponent(workflowUUID)}&userId=${encodeURIComponent("{{ user_id }}")}`;
+
+            
+            // Redirect to the page with the bot data in the URL
+            window.location.href = redirectUrl; // Redirect to the desired page with data
+            // Redirect to the page with the bot data in the URL
+            // window.location.href = redirectUrl; // Redirect to the desired page with data
+            // Delay to ensure elements are accessible
+            setTimeout(() => {
+                // Set the Voicebot Name and UUID on the workflow creation page
+                document.getElementById('voicebotName').value = botName; 
+                document.getElementById('voicebotUuid').value = botUUID; 
+                document.getElementById('uuid').value = workflowUUID;
+            }, 100);
+
+        } else {
+            alert('Error creating bot!');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Something went wrong. Please try again.');
+    });
+});
+
+// Function to generate a UUID
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+
+    </script>
+
+    <script>
+        
+        // Add this variable to track selected workflow
+        let selectedWorkflowUUID = null;
+
+        // Modified test call handler
+        document.getElementById('startTestCall').addEventListener('click', function() {
+            const testSettings = {
+                mobile_number: document.getElementById('testMobileNumber').value,
+                voice: document.getElementById('voiceSelect').value,
+                language: document.getElementById('languageSelect').value,
+                interruption: document.getElementById('interruptionSelect').value,
+                call_duration: parseInt(document.getElementById('callDuration').value),
+                ivr_detect: document.getElementById('ivrDetectCheckbox').checked,
+                workflow_uuid: document.getElementById('uuid').value // Get UUID from workflow creation
+            };
+
+            if (!testSettings.workflow_uuid) {
+                alert('Please create or select a workflow first!');
+                return;
+            }
+
+            fetch('/start_test_call', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(testSettings)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert('Test call initiated!');
+                    console.log('Call UUID:', data.call_uuid);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to start test call');
+            });
+        });
+
+        // Add this to set workflow UUID when creating/selecting
+        function setWorkflowUUID(uuid) {
+            selectedWorkflowUUID = uuid;
+            document.getElementById('uuid').value = uuid;
+        }
+
+        // Update your workflow creation/import functions to call setWorkflowUUID()
+   
+    </script>
+     
+   
+ <script>
+    let editor;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize Drawflow
+        const container = document.getElementById("drawflow");
+        editor = new Drawflow(container);
+        editor.start();
+
+        // Sidebar navigation
+        const sidebarButtons = document.querySelectorAll(".sidebar-menu-button");
+        const pages = document.querySelectorAll(".content-page");
+
+        sidebarButtons.forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();
+                let target = this.getAttribute("data-target");
+                pages.forEach(page => page.classList.add("d-none"));
+                document.getElementById(target).classList.remove("d-none");
+                sidebarButtons.forEach(btn => btn.classList.remove("active"));
+                this.classList.add("active");
+            });
+        });
+
+        // Workflow page navigation
+        // const createBtn = document.getElementById("createWorkflowBtn");
+        const saveBtn = document.getElementById("saveWorkflowBtn");
+        const workflowPage = document.getElementById("workflows");
+        const blockDetailsDialog = document.getElementById("blockDetailsDialog");
+
+        const workflowCreatePage = document.getElementById("workflowCreatePage");
+
+        // createBtn.addEventListener("click", function () {
+
+        //     const botId = document.getElementById('botIdDisplay').value;
+        //     const botName = document.getElementById('botName').value;
+
+        //     const workflowUUID = generateUUID();
+
+        //     // Log botId and botName to console for debugging
+        //     console.log("Bot ID: ", botId);
+        //     console.log("Bot Name: ", botName);
+
+        //     // Add bot_id and bot_name to the new page (if needed in your UI)
+        //     document.getElementById('voicebotUuid').value = botId;
+        //     document.getElementById('voicebotName').value = botName;
+        //     document.getElementById('uuid').value = workflowUUID;
+        //     // const redirectUrl = `/dashboard_workflow1?botName=${encodeURIComponent(botName)}&botUuid=${encodeURIComponent(botId)}&workflowUuid=${encodeURIComponent(workflowUUID)}&userId=${encodeURIComponent("{{ user_id }}")}`;
+
+            
+        //     // Redirect to the page with the bot data in the URL
+        //     window.location.href = redirectUrl; // Redirect to the desired page with data
+        //     // workflowPage.classList.add("d-none");
+        //     // workflowCreatePage.classList.remove("d-none");
+        //     editor.clear();
+        // });
+
+        // Save Workflow Handler
+        saveBtn.addEventListener("click", async function () {
+            try {
+                const workflowName = document.getElementById("workflowName").value.trim();
+                if (!workflowName) {
+                    alert("Please enter a workflow name.");
+                    return;
+                }
+
+                const exportedData = editor.export();
+                const userId = "{{ user_id }}"; // Ensure this is properly populated by Flask
+                
+                // Prepare data to send to backend
+                const workflowData = {
+                    name: workflowName,
+                    user_id: userId,
+                    data: exportedData
+                };
+
+                console.log("Exporting workflow data:", workflowData);
+
+                const response = await fetch('/export workflow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(workflowData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                alert(result.message || "Workflow saved successfully!");
+                workflowCreatePage.classList.add("d-none");
+                workflowPage.classList.remove("d-none");
+                location.reload(); // Refresh to update workflow list
+            } catch (error) {
+                console.error("Error saving workflow:", error);
+                alert("Failed to save workflow. Please try again.");
+            }
+        });
+
+        // Drag and drop functionality
+        const createBlock = document.getElementById("createBlock");
+        createBlock.addEventListener("dragstart", function (e) {
+            e.dataTransfer.setData("text/plain", "createBlock");
+        });
+
+        const drawflowCanvas = document.getElementById("drawflow");
+        drawflowCanvas.addEventListener("dragover", function (e) {
+            e.preventDefault();
+        });
+
+        drawflowCanvas.addEventListener("drop", function (e) {
+            e.preventDefault();
+            const data = e.dataTransfer.getData("text/plain");
+            if (data === "createBlock") {
+                const rect = drawflowCanvas.getBoundingClientRect();
+                const posX = e.clientX - rect.left;
+                const posY = e.clientY - rect.top;
+                 // Show the block details dialog
+            // blockDetailsDialog.classList.remove("d-none");
+
+                const htmlContent = `
+                    <div id="new-block">
+                        <div id="header">
+                            <input type="text" df-block-name placeholder="Block name" style="width: 130px; height: 30px; margin-bottom: 5px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                        </div>
+                        <div>
+                            <input type="text" df-block-user_message placeholder="User Message" style="width: 130px; height: 30px; margin-bottom: 5px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                        </div>
+                        <div>
+                            <input type="text" df-block-bot_message placeholder="Bot Message" style="width: 130px; height: 30px; margin-bottom: 5px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                        </div>
+                    </div>`;
+
+                editor.addNode(
+                    "Block",
+                    1,
+                    1,
+                    posX,
+                    posY,
+                    "custom",
+                    { block: { name: "", user_message: "", bot_message: "" } },
+                    htmlContent
+                );
+            }
+        });
+
+     
+    });
+   
+
+    document.getElementById("exportBtn").addEventListener("click", async function () {
+    try {
+        const workflowName = document.getElementById("workflowName").value.trim();
+        const uuidElement = document.getElementById("uuid"); 
+        const uuid = uuidElement ? uuidElement.value.trim() : ""; // Check if UUID field exists
+        
+        if (!workflowName) {
+            alert("Please enter a workflow name.");
+            return;
+        }
+
+        console.log("Export button is clicked");
+        const exportedData = editor.export();
+        const userId = "{{ user_id }}";  // Passed from Flask template
+        const dataStr = JSON.stringify(exportedData, null, 2);
+        console.log(dataStr);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        
+        // Use existing UUID if present, otherwise generate a new one
+        const fileName = (uuid ? uuid : generateUUID()) + ".json";
+        console.log("File name:", fileName);
+
+        const formData = new FormData();
+        console.log("FormData before appending:", formData);
+        formData.append("file", new File([blob], fileName, { type: "application/json" }));
+        formData.append("user_id", userId);  // Attach user_id
+        formData.append("workflowName", workflowName);
+        formData.append("uuid", uuid ? uuid : generateUUID());  // Ensure UUID is sent
+
+        // Collect additional details
+        formData.append("language", document.getElementById("languageSelect").value);
+        formData.append("voice", document.getElementById("voicesSelect").value);
+        formData.append("call_duration", document.getElementById("callDuration").value);
+        formData.append("interruption", document.getElementById("interruptionToggle").value);
+        formData.append("ivr_detect", document.getElementById("ivrDetect").value);
+        formData.append("bot_message", document.getElementById("botMessage").value);
+
+        // Collect Voicebot Name and UUID
+        const voicebotName = document.getElementById("voicebotName").value.trim();
+        const voicebotUuid = document.getElementById("voicebotUuid").value.trim();
+        
+        if (voicebotName && voicebotUuid) {
+            formData.append("voicebotName", voicebotName);  // Add Voicebot Name to FormData
+            formData.append("voicebotUuid", voicebotUuid);  // Add Voicebot UUID to FormData
+        }
+
+
+        console.log("User ID:", userId);
+
+        const response = await fetch("/export-flowchart", {
+            method: "POST",
+            body: formData,
+        });
+
+        console.log("FormData after appending:", formData);
+        console.log("Response:", response);
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log(result);
+        alert("Flowchart exported and sent to backend successfully!");
+        location.reload();
+        // Hide the Create Workflow page
+        document.getElementById("workflowCreatePage").classList.add("d-none");
+
+        // Show the Workflows page
+        document.getElementById("workflows").classList.remove("d-none");
+        
+
+        
+    } catch (error) {
+        console.error("Error exporting flowchart:", error);
+        alert("Failed to export flowchart. Please try again.");
+    }
+});
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+   
+
+// // Import Workflow Function
+// function importWorkflow(workflowId) {
+//     const userId = "{{ user_id }}";
+//     fetch(`/get-workflow-json/${workflowId}?user_id=${userId}`)
+//         .then(response => {
+//             if (!response.ok) throw new Error("Failed to fetch workflow");
+//             return response.json();
+//         })
+//         .then(workflowData => {
+//             // Switch to editor view
+//             document.getElementById("workflows").classList.add("d-none");
+//             const createPage = document.getElementById("workflowCreatePage");
+//             createPage.classList.remove("d-none");
+            
+//             // Clear existing editor content
+//             editor.clear();
+            
+//             // Import workflow data
+//             editor.import(workflowData.data);
+
+            
+//             // Set workflow name
+//             document.getElementById("workflowName").value = workflowData.workflow_name;
+
+//             // documnet.getElementById("uploadCsvBtn").value=workflowData.csv_files;
+//             // Display the CSV filename (csv_files) in the 'uploadedFileNameDisplay' element
+//             const csvFileName = workflowData.csv_files; // assuming csv_files is a string or array of filenames
+//             if (csvFileName) {
+//                 document.getElementById("csvFileName").value = fileName;
+//                 console.log("CSV File Name displayed:", csvFileName);
+//             }else {
+//                 console.log("No CSV file name available");
+//             }
+
+
+
+//             // Display selected columns in the 'csvColumns' section
+//             const columnsList = document.getElementById("columnsList");
+//             columnsList.innerHTML = '';  // Clear any existing columns
+//             if (workflowData.selected_columns && workflowData.selected_columns.length > 0) {
+//                 workflowData.selected_columns.forEach(column => {
+//                     const li = document.createElement("li");
+//                     li.textContent = column;  // Add each selected column as a list item
+//                     columnsList.appendChild(li);
+//                     console.log("Added column:", column);
+//                 });
+
+//                 // Show the CSV Columns section if there are selected columns
+//                 document.getElementById("csvColumns").style.display = 'block';
+//                 document.getElementById("saveVariableMappingBtn").style.display = 'block'; // Show save button
+//             } else {
+//                 // Hide the CSV Columns section if no selected columns
+//                 document.getElementById("csvColumns").style.display = 'none';
+//                 document.getElementById("saveVariableMappingBtn").style.display = 'none'; // Hide save button
+//             }
+
+//             document.getElementById("uuid").value = workflowData.uuid;
+
+            
+
+//             const botId = document.getElementById('botIdDisplay').value;
+//             const botName = document.getElementById('botName').value;
+
+//             // Log botId and botName to console for debugging
+//             console.log("Bot ID: ", botId);
+//             console.log("Bot Name: ", botName);
+
+//             // Add bot_id and bot_name to the new page (if needed in your UI)
+//             document.getElementById('voicebotUuid').value = botId;
+//             document.getElementById('voicebotName').value = botName;
+
+            
+//             console.log("Workflow imported successfully:", workflowData);
+//         })
+//         .catch(error => {
+//             console.error("Import error:", error);
+//             alert("Error loading workflow");
+//         });
+// }
+
+
+
+// // Import Workflow Function
+// function importWorkflow(workflowId) {
+//     const userId = "{{ user_id }}";
+//     console.log("userId:",userId)
+//     fetch(`/get-workflow-json/${workflowId}?user_id=${userId}`)
+//         .then(response => {
+//             if (!response.ok) throw new Error("Failed to fetch workflow");
+//             return response.json();
+//         })
+//         .then(workflowData => {
+//             // Switch to editor view
+//             document.getElementById("workflows").classList.add("d-none");
+//             const createPage = document.getElementById("workflowCreatePage");
+//             createPage.classList.remove("d-none");
+            
+//             // Clear existing editor content
+//             editor.clear();
+            
+//             // Import workflow data
+//             editor.import(workflowData.data);
+
+            
+//             // Set workflow name
+//             document.getElementById("workflowName").value = workflowData.workflow_name;
+
+//             // documnet.getElementById("uploadCsvBtn").value=workflowData.csv_files;
+//             // Display the CSV filename (csv_files) in the 'uploadedFileNameDisplay' element
+//             const csvFileName = workflowData.csv_files; // assuming csv_files is a string or array of filenames
+//             if (csvFileName) {
+//                 document.getElementById("csvFileName").value = fileName;
+//                 console.log("CSV File Name displayed:", csvFileName);
+//             }else {
+//                 console.log("No CSV file name available");
+//             }
+
+
+
+//             // Display selected columns in the 'csvColumns' section
+//             const columnsList = document.getElementById("columnsList");
+//             columnsList.innerHTML = '';  // Clear any existing columns
+//             if (workflowData.selected_columns && workflowData.selected_columns.length > 0) {
+//                 workflowData.selected_columns.forEach(column => {
+//                     const li = document.createElement("li");
+//                     li.textContent = column;  // Add each selected column as a list item
+//                     columnsList.appendChild(li);
+//                     console.log("Added column:", column);
+//                 });
+
+//                 // Show the CSV Columns section if there are selected columns
+//                 document.getElementById("csvColumns").style.display = 'block';
+//                 document.getElementById("saveVariableMappingBtn").style.display = 'block'; // Show save button
+//             } else {
+//                 // Hide the CSV Columns section if no selected columns
+//                 document.getElementById("csvColumns").style.display = 'none';
+//                 document.getElementById("saveVariableMappingBtn").style.display = 'none'; // Hide save button
+//             }
+
+//             document.getElementById("uuid").value = workflowData.uuid;
+
+            
+
+//             const botId = document.getElementById('botIdDisplay').value;
+//             const botName = document.getElementById('botName').value;
+
+//             // Log botId and botName to console for debugging
+//             console.log("Bot ID: ", botId);
+//             console.log("Bot Name: ", botName);
+
+//             // Add bot_id and bot_name to the new page (if needed in your UI)
+//             document.getElementById('voicebotUuid').value = botId;
+//             document.getElementById('voicebotName').value = botName;
+
+            
+//             console.log("Workflow imported successfully:", workflowData);
+//         })
+//         .catch(error => {
+//             console.error("Import error:", error);
+//             alert("Error loading workflow");
+//         });
+// }
+
+// Import Workflow Function
+function importWorkflow(workflowId) {
+    const userId = "{{ user_id }}";
+    console.log("User ID:", userId);
+
+    fetch(`/get-workflow-json/${workflowId}?user_id=${userId}`)
+        .then(response => {
+            if (!response.ok) throw new Error("Failed to fetch workflow");
+            return response.json();
+        })
+        .then(workflowData => {
+            if (!workflowData.success) {
+                throw new Error(workflowData.error || "Unknown error occurred");
+            }
+
+            const data = workflowData.data;
+            console.log(data)
+            // const data = workflowData.data;
+            console.log("Workflow Data:", JSON.stringify(data, null, 2));  // Pretty-print JSON data
+            const levels= data.levels;
+            // console.log("Levels Data:", data.levels);
+            console.log("Levels Data (Raw):", levels);
+            console.log("Levels Data:", JSON.stringify(levels, null, 2))
+            // Extract values from the workflow data
+            const botName = data.voicebot_name;
+            const botUuid = data.voicebot_uuid;
+            const workflowUuid = data.uuid;
+            const workflowName=data.workflow_name;
+           
+
+            console.log("Bot Name:", botName);
+            console.log("Bot UUID:", botUuid);
+            console.log("Workflow UUID:", workflowUuid);
+            console.log("Levels Data:", levels);
+            console.log("workflow name:",workflowName)
+
+            // Convert levels data to JSON string (you can stringify the array)
+            const levelsJson = encodeURIComponent(JSON.stringify(levels));
+
+            // Create the redirect URL with extracted values and levels data
+            const redirectUrl = `/dashboard_workflow1?botName=${encodeURIComponent(botName)}&botUuid=${encodeURIComponent(botUuid)}&workflowUuid=${encodeURIComponent(workflowUuid)}&userId=${encodeURIComponent(userId)}&levels=${levelsJson}&workflowName=${encodeURIComponent(workflowName)}`;
+
+            // Log and redirect to the new page
+            console.log("Redirecting to:", redirectUrl);
+            window.location.href = redirectUrl;
+
+
+            // // Switch to editor view
+            // document.getElementById("workflows").classList.add("d-none");
+            // const createPage = document.getElementById("workflowCreatePage");
+            // createPage.classList.remove("d-none");
+
+            // Clear existing editor content
+            // editor.clear();
+
+            // // Import workflow data into the editor
+            // editor.import(data);
+            
+            // Set workflow name
+            document.getElementById("workflowName").value = data.workflow_name;
+
+            // Display the CSV filename in the 'uploadedFileNameDisplay' element
+            if (data.csv_files) {
+                document.getElementById("csvFileName").value = data.csv_files;
+                console.log("CSV File Name displayed:", data.csv_files);
+            } else {
+                console.log("No CSV file name available");
+            }
+
+            // Display selected columns in the 'csvColumns' section
+            const columnsList = document.getElementById("columnsList");
+            columnsList.innerHTML = '';  // Clear existing columns
+            if (data.selected_columns && data.selected_columns.length > 0) {
+                data.selected_columns.forEach(column => {
+                    const li = document.createElement("li");
+                    li.textContent = column;
+                    columnsList.appendChild(li);
+                    console.log("Added column:", column);
+                });
+
+                // Show CSV Columns section and save button
+                document.getElementById("csvColumns").style.display = 'block';
+                document.getElementById("saveVariableMappingBtn").style.display = 'block';
+            } else {
+                // Hide CSV Columns section if no selected columns
+                document.getElementById("csvColumns").style.display = 'none';
+                document.getElementById("saveVariableMappingBtn").style.display = 'none';
+            }
+
+            document.getElementById("uuid").value = data.uuid;
+
+            // Set bot details
+            document.getElementById('voicebotUuid').value = data.voicebot_uuid || '';
+            document.getElementById('voicebotName').value = data.voicebot_name || '';
+
+            console.log("Workflow imported successfully:", data);
+
+            // Handle Levels Data
+            if (data.levels && Array.isArray(data.levels)) {
+                console.log("Levels Data:", data.levels);
+
+                // Store levels in a hidden input field or a JavaScript variable
+                document.getElementById("levelsData").value = JSON.stringify(data.levels);
+
+                // Optionally, display levels in a UI section
+                const levelsContainer = document.getElementById("levelsContainer");
+                levelsContainer.innerHTML = '';  // Clear previous levels
+                data.levels.forEach(level => {
+                    const levelDiv = document.createElement("div");
+                    levelDiv.classList.add("level-box");
+                    levelDiv.innerHTML = `<strong>${level.name}</strong> (ID: ${level.id})`;
+
+                    // Append stages if available
+                    if (level.stages && Array.isArray(level.stages)) {
+                        const stagesList = document.createElement("ul");
+                        level.stages.forEach(stage => {
+                            const stageItem = document.createElement("li");
+                            stageItem.textContent = `Stage ${stage.id}: ${stage.name}`;
+                            stagesList.appendChild(stageItem);
+                        });
+                        levelDiv.appendChild(stagesList);
+                    }
+
+                    levelsContainer.appendChild(levelDiv);
+                });
+
+                // Make levels section visible
+                document.getElementById("levelsSection").style.display = "block";
+            } else {
+                console.log("No levels data found.");
+                document.getElementById("levelsSection").style.display = "none";
+            }
+
+        })
+        .catch(error => {
+            console.error("Import error:", error);
+            alert("Error loading workflow");
+        });
+}
+
+
+
+// document.addEventListener('DOMContentLoaded', function() {
+//     const importButtons = document.querySelectorAll('.import-btn');
+//     console.log("edit button clicked");
+//     const userId = "{{ user_id }}";
+
+//     importButtons.forEach(button => {
+//         button.addEventListener('click', function() {
+//             const workflowUUID = this.getAttribute('data-workflow');
+//             console.log("workflowUuid:",workflowUUID)
+
+//             // Fetch the workflow data from the backend
+//             fetch(`/api/get-workflow1/${workflowUUID}?user_id=${userId}`)
+//                 .then(response => {
+//                     if (response.redirected) {
+//                         window.location.href = response.url;
+//                     } else {
+//                         return response.json();
+//                     }
+//                 })
+//                 .then(data => {
+//                     console.log("Response from server:", data); // Print the response in the console
+//                     if (data && data.status === 'error') {
+//                         alert(data.message);
+//                     }
+//                 })
+//                 .catch(error => {
+//                     console.error('Error:', error);
+//                 });
+//         });
+//     });
+// });
+
+
+    // Delete workflow function
+    function deleteWorkflow(workflow) {
+        const userId = "{{ user_id }}";
+        if (confirm("Are you sure you want to delete this workflow?")) {
+            fetch(`/delete-workflow-json/${workflow}?user_id=${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to delete workflow");
+                }
+                return response.json();
+            })
+            .then(() => {
+                alert("Workflow deleted successfully!");
+                location.reload();
+            })
+            .catch(error => {
+                console.error("Error deleting workflow:", error);
+                alert("Failed to delete workflow");
+            });
+        }
+    }
+
+  
+    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("click", function (e) {
+        // Check if an element with the "import-btn" class was clicked
+        const importBtn = e.target.closest(".import-btn");
+        if (importBtn) {
+            const workflow = importBtn.dataset.workflow;
+            console.log("Import button clicked, Workflow ID:", workflow);
+            importWorkflow(workflow);
+        }
+        if (e.target.closest(".delete-btn")) {
+            const workflow = e.target.closest(".delete-btn").dataset.workflow;
+            deleteWorkflow(workflow);
+       }
+        
+    });
+});
+
+
+    // Sidebar toggle
+    $(document).ready(function () {
+        $('#sidebarToggle').on('click', function () {
+            console.log("clicked");
+            $('#sidebar').toggleClass('collapsed');
+        });
+    });
+</script>
+
+    <script>
+
+
+document.querySelector(".logout-btn").addEventListener("click", function() {
+    // Call the Flask logout route
+    fetch("{{ url_for('logout') }}", {
+        method: 'POST',  // Adjust method if your logout requires a POST request
+        credentials: 'same-origin' // If you're using session cookies
+    })
+    .then(response => {
+        if (response.ok) {
+            // Redirect to login page using Flask-generated URL
+            window.location.href = "{{ url_for('login') }}";
+        } else {
+            alert("Logout failed. Please try again.");
+        }
+    })
+    .catch(error => {
+        console.error("Error logging out:", error);
+        alert("Logout failed. Please try again.");
+    });
+});
+
+
+
+    $(document).ready(function() {
+            // Toggle sidebar
+            $('#sidebarToggle').on('click', function() {
+                console.log("collapsed");
+                $('#sidebar').toggleClass('collapsed');
+            });
+
+            // Sidebar rail resize functionality
+            const sidebar = document.getElementById('sidebar');
+            const sidebarRail = document.querySelector('.sidebar-rail');
+
+            let isResizing = false;
+
+            sidebarRail.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', function() {
+                    isResizing = false;
+                    document.removeEventListener('mousemove', handleMouseMove);
+                });
+            });
+
+            function handleMouseMove(e) {
+                if (!isResizing) return;
+
+                const newWidth = e.clientX;
+
+                // Set minimum and maximum width
+                if (newWidth < 50) {
+                    sidebar.classList.add('collapsed');
+                } else if (newWidth > 50 && newWidth < 300) {
+                    sidebar.classList.remove('collapsed');
+                    sidebar.style.width = newWidth + 'px';
+                    document.getElementById('content').style.marginLeft = newWidth + 'px';
+                    document.getElementById('content').style.width = `calc(100% - ${newWidth}px)`;
+                    document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
+                }
+            }
+
+            // Handle submenu active state
+            $('.sidebar-menu-button').on('click', function() {
+                if ($(this).attr('data-bs-toggle') === 'collapse') {
+                    $(this).toggleClass('active');
+                }
+            });
+
+            // Show/hide action buttons on hover for mobile
+            if (window.innerWidth <= 768) {
+                $('.action-button').css('opacity', '1');
+            }
+
+            // Toggle dark mode (example function)
+            function toggleDarkMode() {
+                document.documentElement.classList.toggle('dark');
+            }
+
+            if (window.innerWidth <= 768) {
+                $('#sidebar').removeClass('collapsed').addClass('active');
+            }
+
+            // Close sidebar when clicking outside on mobile
+            $(document).on('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    if (!$(e.target).closest('#sidebar').length && !$(e.target).closest('#sidebarToggle')
+                        .length) {
+                        $('#sidebar').removeClass('active');
+                    }
+                }
+            });
+
+            // Reopen sidebar when toggle is clicked on mobile
+            $('#sidebarToggle').on('click', function() {
+                if (window.innerWidth <= 768) {
+                    $('#sidebar').addClass('active');
+                }
+            });
+        });
+    </script>
+
+
+
+
+</body>
+
+</html>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const sidebarButtons = document.querySelectorAll(".sidebar-menu-button");
+        const pages = document.querySelectorAll(".content-page");
+
+        // Sidebar Click Event
+        sidebarButtons.forEach(button => {
+            button.addEventListener("click", function(event) {
+                event.preventDefault();
+
+                let target = this.getAttribute("data-target");
+
+                // Hide all pages
+                pages.forEach(page => page.classList.add("d-none"));
+
+                // Show the selected page
+                document.getElementById(target).classList.remove("d-none");
+
+                // Remove 'active' class from all menu items
+                sidebarButtons.forEach(btn => btn.classList.remove("active"));
+
+                // Add 'active' class to clicked item
+                this.classList.add("active");
+            });
+        });
+    });
+</script>
+
+<script>
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     const createBtn = document.getElementById("createWorkflowBtn");
+    //     const saveBtn = document.getElementById("saveWorkflowBtn");
+    //     const workflowPage = document.getElementById("workflows");
+    //     const workflowCreatePage = document.getElementById("workflowCreatePage");
+
+    //     // // Show Create Workflow Page
+    //     createBtn.addEventListener("click", function() {
+    //         console.log("start");
+            
+    //         // const botName = document.getElementById('botName').value;
+    //         // console.log(botName)
+
+    //         const workflowUUID = generateUUID();
+
+           
+    //         const botName = document.getElementById('botName').value;
+    //         const voicebotUuid = document.getElementById("botIdDisplay").value.trim();
+    //         const workflowName = document.getElementById("workflowName").value.trim();
+    //         // const workflowId = document.getElementById("uuid").value.trim(); 
+    //         console.log("bot uuid:",voicebotUuid)
+    //         console.log("bot name",botName)
+    //         console.log("workfflow uuid",workflowUUID)
+    //         console.log("workflow name",workflowName)
+        
+
+    //         console.log("create bot button clicked")
+    //         const redirectUrl = `/dashboard_workflow1?botName=${encodeURIComponent(botName)}&botUuid=${encodeURIComponent(botUUID)}&workflowUuid=${encodeURIComponent(workflowUUID)}&userId=${encodeURIComponent("{{ user_id }}")}`;
+
+            
+    //         // Redirect to the page with the bot data in the URL
+    //         window.location.href = redirectUrl; // Redirect to the desired page with data
+    //         // workflowPage.classList.add("d-none");
+
+    //         // flowy(canvas, ongrab, onrelease, onsnap, onrearrange, spacing_x, spacing_y);
+
+    //         // workflowCreatePage.classList.remove("d-none");
+    //     });
+    document.addEventListener("DOMContentLoaded", function () {
+    const createBtn = document.getElementById("createWorkflowBtn");
+    const saveBtn = document.getElementById("saveWorkflowBtn");
+    const workflowPage = document.getElementById("workflows");
+    const workflowCreatePage = document.getElementById("workflowCreatePage");
+
+    // Show Create Workflow Page
+    createBtn.addEventListener("click", function () {
+        console.log("start");
+
+        // Generate workflow UUID
+        const workflowUUID = generateUUID();
+
+        // Retrieve form data
+        const botName = document.getElementById('botName').value.trim();
+        const voicebotUuid = document.getElementById("botIdDisplay").value.trim();
+        const workflowName = document.getElementById("workflowName").value.trim();
+
+        // Debugging logs
+        console.log("bot uuid:", voicebotUuid);
+        console.log("bot name:", botName);
+        console.log("workflow uuid:", workflowUUID);
+        console.log("workflow name:", workflowName);
+
+        // Ensure botName and voicebotUuid are provided
+        if (!botName || !voicebotUuid) {
+            alert("Bot Name and Bot UUID are required!");
+            return;
+        }
+
+        // Create the redirect URL
+        const redirectUrl = `/dashboard_workflow1?botName=${encodeURIComponent(botName)}&botUuid=${encodeURIComponent(voicebotUuid)}&workflowUuid=${encodeURIComponent(workflowUUID)}&userId=${encodeURIComponent("{{ user_id }}")}`;
+
+        // Log and redirect to the new page
+        console.log("Redirecting to:", redirectUrl);
+        window.location.href = redirectUrl;
+        
+        // You can toggle visibility of pages here if needed
+        // workflowPage.classList.add("d-none");
+        // workflowCreatePage.classList.remove("d-none");
+    });
+
+        // Save Workflow & Return to List
+        saveBtn.addEventListener("click", function() {
+            alert("Workflow Saved!");
+            workflowCreatePage.classList.add("d-none");
+            workflowPage.classList.remove("d-none");
+        });
+
+    
+    });
+</script>
+
+
+
